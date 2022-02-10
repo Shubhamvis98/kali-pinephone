@@ -1,2 +1,1 @@
-# kali-pinephone
-Kali Phosh for PinePhone
+# Kali Phosh for PinePhone
