@@ -1,0 +1,5 @@
+ModemManager.service
+NetworkManager.service
+eg25-manager.service
+phosh.service
+ssh.service

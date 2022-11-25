@@ -1,0 +1,195 @@
+#Layout by @ShubhamVis98
+---
+outlines:
+    default: { width: 58, height: 70 }
+    top: { width: 65, height: 55 }
+    special: { width: 65, height: 70 }
+    minspace: { width: 116, height: 70 }
+    spaceline: { width: 203, height: 70 }
+    funkeys: { width: 65, height: 70 }
+
+views:
+    base:
+        - "Esc Tab Ctrl Alt topdash ← → ↓ ↑"
+        - "q w e r t y u i o p"
+        - "a s d f g h j k l"
+        - "Shift z x c v b n m BackSpace"
+        - "Nums Preferences , Space . FunKeys Return"
+    upper:
+        - "Esc Tab Ctrl Alt topunderscore ← → ↓ ↑"
+        - "Q W E R T Y U I O P"
+        - "A S D F G H J K L"
+        - "Shift Z X C V B N M BackSpace"
+        - "Nums Preferences $ Space / FunKeys Return"
+    nums:
+        - "Esc Tab Ctrl Alt topdash ← → ↓ ↑"
+        - "# $ & _ - 1 2 3 ?"
+        - "@ ( ) = + 4 5 6 !"
+        - "Symbols ' : % / 7 8 9 BackSpace"
+        - "Base \" MinSpace * , 0 . Return"
+    symbols:
+        - "Esc Tab Ctrl Alt topdash ← → ↓ ↑"
+        - "£ € ¥ ¢ © ® ™ ~ ¿"
+        - "µ [ ] { } < > ^ ¡"
+        - "Nums ` ; ÷ \\ | ¦ ¬ BackSpace"
+        - "Base MinSpace ° ¶ § × Return"
+    funkeys:
+        - "Esc Tab Ctrl Alt topdash ← → ↓ ↑"
+        - "F1 F2 F3 F4 F5 F6 Insert Home PgUp"
+        - "F7 F8 F9 F10 F11 F12 Delete End PgDn"
+        - "Super Print Pause « »"
+        - "Base MinSpace Menu Return"
+
+buttons:
+    Tab:
+        outline: "top"
+        keysym: "Tab"
+    Ctrl:
+        modifier: "Control"
+        outline: "top"
+        label: "Ctrl"
+    Alt:
+        modifier: "Alt"
+        outline: "top"
+        label: "Alt"
+    topdash:
+        text: "-"
+        outline: "top"
+    topunderscore:
+        text: "_"
+        outline: "top"
+    Space:
+        outline: "spaceline"
+        label: ""
+        text: " "
+    MinSpace:
+        outline: "minspace"
+        label: ""
+        text: " "
+    Return:
+        outline: "special"
+        icon: "key-enter"
+        keysym: "Return"
+    Shift:
+        action:
+            locking:
+                lock_view: "upper"
+                unlock_view: "base"
+        outline: "special"
+        icon: "key-shift"
+    BackSpace:
+        outline: "special"
+        icon: "edit-clear-symbolic"
+        action: "erase"
+    Nums:
+        action:
+            set_view: "nums"
+        outline: "special"
+        label: "123"
+    Symbols:
+        action:
+            set_view: "symbols"
+        outline: "special"
+        label: "{&="
+    FunKeys:
+        action:
+            set_view: "funkeys"
+        outline: "special"
+        label: "FN"
+    F1:
+        outline: "funkeys"
+        keysym: "F1"
+    F2:
+        outline: "funkeys"
+        keysym: "F2"
+    F3:
+        outline: "funkeys"
+        keysym: "F3"
+    F4:
+        outline: "funkeys"
+        keysym: "F4"
+    F5:
+        outline: "funkeys"
+        keysym: "F5"
+    F6:
+        outline: "funkeys"
+        keysym: "F6"
+    F7:
+        outline: "funkeys"
+        keysym: "F7"
+    F8:
+        outline: "funkeys"
+        keysym: "F8"
+    F9:
+        outline: "funkeys"
+        keysym: "F9"
+    F10:
+        outline: "funkeys"
+        keysym: "F10"
+    F11:
+        outline: "funkeys"
+        keysym: "F11"
+    F12:
+        outline: "funkeys"
+        keysym: "F12"
+    Esc:
+        outline: "top"
+        keysym: "Escape"
+    Home:
+        outline: "funkeys"
+        keysym: "Home"
+    End:
+        outline: "funkeys"
+        keysym: "End"
+    Super:
+        outline: "funkeys"
+        keysym: "Super_L"
+        text: "Meta"
+    Insert:
+        outline: "funkeys"
+        keysym: "Insert"
+        text: "Ins"
+    Delete:
+        outline: "funkeys"
+        keysym: "Delete"
+        text: "Del"
+    PgUp:
+        outline: "funkeys"
+        keysym: "Page_Up"
+    PgDn:
+        outline: "funkeys"
+        keysym: "Page_Down"
+    Pause:
+        outline: "funkeys"
+        keysym: "Pause"
+    Print:
+        outline: "funkeys"
+        keysym: "Print"
+    "↑":
+        outline: "top"
+        keysym: "Up"
+    "↓":
+        outline: "top"
+        keysym: "Down"
+    "←":
+        outline: "top"
+        keysym: "Left"
+    "→":
+        outline: "top"
+        keysym: "Right"
+    "«":
+        outline: "funkeys"
+    "»":
+        outline: "funkeys"
+    Menu:
+        outline: "funkeys"
+        keysym: "Menu"
+    Base:
+        action:
+            set_view: "base"
+        outline: "special"
+        label: "abc"
+    Preferences:
+        action: "show_prefs"
+        outline: "special"
+        icon: "keyboard-mode-symbolic"
