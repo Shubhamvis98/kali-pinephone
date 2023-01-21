@@ -23,7 +23,9 @@ sed -i 's/-0.07/0/;s/-0.13/0/' /usr/share/plymouth/themes/kali/kali.script
 sed -i 's/bash/zsh/' /etc/passwd
 
 echo '[*]Copying Configs...'
-rsync -HPavzl confs/ /
+chown -R root:root confs
+rsync -rl confs/ /
+chmod 666 /etc/repart.d/*
 
 echo '[*]Enabling kali plymouth theme...'
 plymouth-set-default-theme kali
