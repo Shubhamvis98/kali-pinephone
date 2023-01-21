@@ -30,8 +30,8 @@ mkimg() {
   unit: sectors
   first-lba: 2048
   sector-size: 512
-  1 : start=2048, size=524288
-  2 : start=526336
+  1 : start=2048, size=524288, type=C12A7328-F81F-11D2-BA4B-00A0C93EC93B
+  2 : start=526336, type=B921B045-1DF0-41C3-AF44-4C6F280D3FAE
 EOF
   echo '[*]Formatting Partitions...'
   losetup $LOOP -P $IMG
