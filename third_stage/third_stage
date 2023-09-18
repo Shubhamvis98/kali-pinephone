@@ -2,17 +2,15 @@
 
 cd `dirname $0`
 
-echo 'kali'>/etc/hostname
+echo 'fossfrog'>/etc/hostname
 echo -e 'nameserver 8.8.8.8\nnameserver 8.8.4.4'>/etc/resolv.conf
 
 echo '[*]Updating...'
-echo 'deb http://kali.download/kali kali-rolling main non-free contrib' > /etc/apt/sources.list
 apt update
 apt upgrade -y
 
 echo '[*]Installing Base and Phosh Packages...'
-apt install -y kali-linux-core kali-defaults phosh-phone pinephone-tweaks u-boot-menu rsync wget curl vim gnome-text-editor megapixels systemd-timesyncd inetutils-ping libcanberra-pulse firmware-realtek-rtl8723cs-bt eg25-manager
-ln -rs /usr/share/alsa/ucm2/PinePhone/PinePhone.conf /usr/share/alsa/ucm2/conf.d/simple-card/
+apt install -y kali-linux-core phosh-phone pinephone-support
 
 echo '[*]Adding User:kali, pass:8888...'
 adduser --disabled-password --gecos "" kali
