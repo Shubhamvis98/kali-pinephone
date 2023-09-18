@@ -19,6 +19,12 @@ echo 'deb http://kali.download/kali kali-rolling main non-free contrib' > $ROOTF
 echo 'deb http://repo.mobian.org/ trixie main non-free-firmware' > $ROOTFS/etc/apt/sources.list.d/mobian.list
 curl https://salsa.debian.org/Mobian-team/mobian-recipes/-/raw/master/overlays/apt/trusted.gpg.d/mobian.gpg > $ROOTFS/etc/apt/trusted.gpg.d/mobian.gpg
 
+cat << EOF > $ROOTFS/etc/apt/preferences.d/00-kali-priority
+Package: *
+Pin: release o=Kali
+Pin-Priority: 1000
+EOF
+
 cat << EOF > ${ROOTFS}/etc/fstab
 # <file system> <mount point>   <type>  <options>       <dump>  <pass>
 UUID=`blkid -s UUID -o value $ROOT_P`	/	ext4	defaults	0	1
