@@ -8,7 +8,7 @@ apt update
 apt upgrade -y
 
 echo '[*]Installing Base and Phosh Packages...'
-apt install -y kali-linux-core phosh-phone pinephone-support wget curl rsync
+apt install -y kali-linux-core phosh-phone pinephone-support wget curl rsync systemd-timesyncd
 
 mkdir -p /etc/skel/.local/share/squeekboard/keyboards/terminal
 curl https://raw.githubusercontent.com/Shubhamvis98/PinePhone_Tweaks/main/layouts/us.yaml > /etc/skel/.local/share/squeekboard/keyboards/us.yaml
