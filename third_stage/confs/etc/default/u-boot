@@ -1,8 +1,0 @@
-## /etc/default/u-boot - configuration file for u-boot-update(8)
-
-U_BOOT_UPDATE="true"
-U_BOOT_ALTERNATIVES="default"
-U_BOOT_MENU_LABEL="Kali GNU/Linux"
-U_BOOT_PARAMETERS="console=ttyS0,115200 consoleblank=0 loglevel=7 rw splash plymouth.ignore-serial-consoles vt.global_cursor_default=0"
-U_BOOT_TIMEOUT="10"
-U_BOOT_FDT_DIR="/dtb-"
