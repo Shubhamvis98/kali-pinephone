@@ -65,7 +65,6 @@ echo '[+]Stage 1: Debootstrap'
 [ -e ${debootstrap_dir}/etc ] && echo -e "[*]Debootstrap already done.\nSkipping Debootstrap..." || debootstrap --foreign --arch $arch kali-rolling ${debootstrap_dir} http://kali.download/kali
 
 echo '[+]Stage 2: Debootstrap second stage and adding Mobian apt repo'
-rsync -rl third_stage ${debootstrap_dir}/
 [ -e ${debootstrap_dir}/etc/passwd ] && echo '[*]Second Stage already done' || nspawn-exec /debootstrap/debootstrap --second-stage
 mkdir -p ${debootstrap_dir}/etc/apt/sources.list.d ${debootstrap_dir}/etc/apt/trusted.gpg.d
 echo 'deb http://kali.download/kali kali-rolling main non-free contrib' > ${debootstrap_dir}/etc/apt/sources.list
