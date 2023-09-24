@@ -8,10 +8,10 @@ LOOP=`losetup -f`
 BOOT_P=${LOOP}p1
 ROOT_P=${LOOP}p2
 WORK_DIR=`dirname $0`
-ROOTFS=${WORK_DIR}/kali_rootfs
+ROOTFS=${WORK_DIR}/kali_rootfs_tmp
 
 nspawn-exec() {
-    systemd-nspawn --bind-ro $qemu_bin -M $machine --capability=cap_setfcap -E $ENV -D $ROOTFS "$@"
+    systemd-nspawn --bind-ro $qemu_bin -M $machine --capability=cap_setfcap -E $ENV -D ${ROOTFS} "$@"
 }
 
 mkimg() {

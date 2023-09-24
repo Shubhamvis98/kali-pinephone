@@ -44,9 +44,9 @@ case "$device" in
     ;;
 esac
 
-image_file="kali_${environment}_${device}_`date +%Y%m%d`.img"
-debootstrap_dir_file="kali_${environment}_${device}_`date +%Y%m%d`.tar.gz"
-debootstrap_dir="kali_${environment}_${device}_`date +%Y%m%d`"
+IMG="kali_${environment}_${device}_`date +%Y%m%d`.img"
+ROOTFS_TAR="kali_${environment}_${device}_`date +%Y%m%d`.tar.gz"
+ROOTFS="kali_rootfs_tmp"
 
 ### START BUILDING ###
 echo '[*]Build info'
@@ -59,31 +59,31 @@ echo "Mobian Suite: $mobian_suite"
 echo "Family: $family"
 
 echo '[+]Create blank image'
-mkimg ${image_file} 5
+mkimg ${IMG} 5
 
 echo '[+]Stage 1: Debootstrap'
-[ -e ${debootstrap_dir}/etc ] && echo -e "[*]Debootstrap already done.\nSkipping Debootstrap..." || debootstrap --foreign --arch $arch kali-rolling ${debootstrap_dir} http://kali.download/kali
+[ -e ${ROOTFS}/etc ] && echo -e "[*]Debootstrap already done.\nSkipping Debootstrap..." || debootstrap --foreign --arch $arch kali-rolling ${ROOTFS} http://kali.download/kali
 
 echo '[+]Stage 2: Debootstrap second stage and adding Mobian apt repo'
-[ -e ${debootstrap_dir}/etc/passwd ] && echo '[*]Second Stage already done' || nspawn-exec /debootstrap/debootstrap --second-stage
-mkdir -p ${debootstrap_dir}/etc/apt/sources.list.d ${debootstrap_dir}/etc/apt/trusted.gpg.d
-echo 'deb http://kali.download/kali kali-rolling main non-free contrib' > ${debootstrap_dir}/etc/apt/sources.list
-echo 'deb http://repo.mobian.org/ trixie main non-free-firmware' > ${debootstrap_dir}/etc/apt/sources.list.d/mobian.list
-curl https://salsa.debian.org/Mobian-team/mobian-recipes/-/raw/master/overlays/apt/trusted.gpg.d/mobian.gpg > ${debootstrap_dir}/etc/apt/trusted.gpg.d/mobian.gpg
+[ -e ${ROOTFS}/etc/passwd ] && echo '[*]Second Stage already done' || nspawn-exec /debootstrap/debootstrap --second-stage
+mkdir -p ${ROOTFS}/etc/apt/sources.list.d ${ROOTFS}/etc/apt/trusted.gpg.d
+echo 'deb http://kali.download/kali kali-rolling main non-free contrib' > ${ROOTFS}/etc/apt/sources.list
+echo 'deb http://repo.mobian.org/ trixie main non-free-firmware' > ${ROOTFS}/etc/apt/sources.list.d/mobian.list
+curl https://salsa.debian.org/Mobian-team/mobian-recipes/-/raw/master/overlays/apt/trusted.gpg.d/mobian.gpg > ${ROOTFS}/etc/apt/trusted.gpg.d/mobian.gpg
 
-cat << EOF > ${debootstrap_dir}/etc/apt/preferences.d/00-kali-priority
+cat << EOF > ${ROOTFS}/etc/apt/preferences.d/00-kali-priority
 Package: *
 Pin: release o=Kali
 Pin-Priority: 1000
 EOF
 
-cat << EOF > ${debootstrap_dir}/etc/apt/preferences.d/10-ubootmenu-mobian
+cat << EOF > ${ROOTFS}/etc/apt/preferences.d/10-ubootmenu-mobian
 Package: u-boot-menu*
 Pin: release o=Mobian
 Pin-Priority: 1001
 EOF
 
-cat << EOF > ${debootstrap_dir}/etc/fstab
+cat << EOF > ${ROOTFS}/etc/fstab
 # <file system> <mount point>   <type>  <options>       <dump>  <pass>
 UUID=`blkid -s UUID -o value ${ROOT_P}`	/	ext4	defaults	0	1
 UUID=`blkid -s UUID -o value ${BOOT_P}`	/boot	ext4	defaults	0	2
@@ -101,12 +101,12 @@ esac
 nspawn-exec apt install -y ${PACKAGES}
 
 echo '[+]Stage 4: Adding some extra tweaks'
-mkdir -p ${debootstrap_dir}/etc/skel/.local/share/squeekboard/keyboards/terminal
-curl https://raw.githubusercontent.com/Shubhamvis98/PinePhone_Tweaks/main/layouts/us.yaml > ${debootstrap_dir}/etc/skel/.local/share/squeekboard/keyboards/us.yaml
-ln -sr ${debootstrap_dir}/etc/skel/.local/share/squeekboard/keyboards/{us.yaml,terminal/}
+mkdir -p ${ROOTFS}/etc/skel/.local/share/squeekboard/keyboards/terminal
+curl https://raw.githubusercontent.com/Shubhamvis98/PinePhone_Tweaks/main/layouts/us.yaml > ${ROOTFS}/etc/skel/.local/share/squeekboard/keyboards/us.yaml
+ln -sr ${ROOTFS}/etc/skel/.local/share/squeekboard/keyboards/{us.yaml,terminal/}
 sed -i 's/-0.07/0/;s/-0.13/0/' /usr/share/plymouth/themes/kali/kali.script
-mkdir -p ${debootstrap_dir}/etc/repart.d
-cat << 'EOF' > ${debootstrap_dir}/etc/repart.d/50-root.conf
+mkdir -p ${ROOTFS}/etc/repart.d
+cat << 'EOF' > ${ROOTFS}/etc/repart.d/50-root.conf
 [Partition]
 Type=root
 Weight=10000
@@ -114,12 +114,12 @@ EOF
 
 echo '[+]Stage 5: Adding user and changing default shell to zsh'
 nspawn-exec adduser --disabled-password --gecos "" ${username}
-sed -i "s#${username}:\!:#${username}:`echo ${password} | openssl passwd -1 -stdin`:#" ${debootstrap_dir}/etc/shadow
-sed -i 's/bash/zsh/' ${debootstrap_dir}/etc/passwd
+sed -i "s#${username}:\!:#${username}:`echo ${password} | openssl passwd -1 -stdin`:#" ${ROOTFS}/etc/shadow
+sed -i 's/bash/zsh/' ${ROOTFS}/etc/passwd
 
 echo '[*]Enabling kali plymouth theme'
 plymouth-set-default-theme -R kali
-sed -i "/picture-uri/cpicture-uri='file:\/\/\/usr\/share\/backgrounds\/kali\/kali-red-sticker-16x9.jpg'" ${debootstrap_dir}/usr/share/glib-2.0/schemas/11_mobile.gschema.override
+sed -i "/picture-uri/cpicture-uri='file:\/\/\/usr\/share\/backgrounds\/kali\/kali-red-sticker-16x9.jpg'" ${ROOTFS}/usr/share/glib-2.0/schemas/11_mobile.gschema.override
 nspawn-exec glib-compile-schemas /usr/share/glib-2.0/schemas
 
 echo '[*]Update u-boot config...'
@@ -132,11 +132,11 @@ do
 done
 
 # Cleanup and Unmount
-echo > ${debootstrap_dir}/etc/resolv.conf
+echo > ${ROOTFS}/etc/resolv.conf
 nspawn-exec apt clean
-rm -rf ${debootstrap_dir}/third_stage
-umount ${debootstrap_dir}/boot
-umount ${debootstrap_dir}
-rmdir ${debootstrap_dir}
+rm -rf ${ROOTFS}/third_stage
+umount ${ROOTFS}/boot
+umount ${ROOTFS}
+rmdir ${ROOTFS}
 losetup -D
 echo '[+]Image Generated.'
