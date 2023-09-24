@@ -94,7 +94,7 @@ PACKAGES="kali-linux-core ${device}-support wget curl rsync systemd-timesyncd"
 case "${environment}" in
     phosh)
         PACKAGES="${PACKAGES} phosh-phone phog"
-        services="${services} phog"
+        services="${services} greetd"
         ;;
     xfce|lxde|gnome|kde) PACKAGES="${PACKAGES} kali-desktop-${environment}" ;;
 esac
@@ -114,6 +114,14 @@ Weight=10000
 EOF
 
 echo '[+]Stage 5: Adding user and changing default shell to zsh'
+if [ ! `grep ${username} ${ROOTFS}/etc/passwd` ]
+then
+    nspawn-exec adduser --disabled-password --gecos "" ${username}
+    sed -i "s#${username}:\!:#${username}:`echo ${password} | openssl passwd -1 -stdin`:#" ${ROOTFS}/etc/shadow
+    sed -i 's/bash/zsh/' ${ROOTFS}/etc/passwd
+else
+    echo '[*]User already present'
+fi
 nspawn-exec adduser --disabled-password --gecos "" ${username}
 sed -i "s#${username}:\!:#${username}:`echo ${password} | openssl passwd -1 -stdin`:#" ${ROOTFS}/etc/shadow
 sed -i 's/bash/zsh/' ${ROOTFS}/etc/passwd
@@ -124,7 +132,7 @@ sed -i "/picture-uri/cpicture-uri='file:\/\/\/usr\/share\/backgrounds\/kali\/kal
 nspawn-exec glib-compile-schemas /usr/share/glib-2.0/schemas
 
 echo '[*]Update u-boot config...'
-u-boot-update
+nspawn-exec u-boot-update
 
 echo '[+]Stage 6: Enable services'
 for svc in `echo ${services} | tr ' ' '\n'`
