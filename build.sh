@@ -98,6 +98,7 @@ case "${environment}" in
         ;;
     xfce|lxde|gnome|kde) PACKAGES="${PACKAGES} kali-desktop-${environment}" ;;
 esac
+nspawn-exec apt update
 nspawn-exec apt install -y ${PACKAGES}
 
 echo '[+]Stage 4: Adding some extra tweaks'
