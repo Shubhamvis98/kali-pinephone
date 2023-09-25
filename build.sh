@@ -11,6 +11,7 @@ mobian_suite="trixie"
 family=
 ARGS=
 compress=
+blockmap=
 
 while getopts "ct:e:h:u:p:s:" opt
 do
@@ -21,7 +22,8 @@ do
         u ) username="$OPTARG" ;;
         p ) password="$OPTARG" ;;
         s ) mobian_suite="$OPTARG" ;;
-        c ) compress=1
+        c ) compress=1 ;;
+        b ) blockmap=1 ;;
     esac
 done
 
@@ -51,7 +53,7 @@ ROOTFS_TAR="kali_${environment}_${device}_`date +%Y%m%d`.tar.gz"
 ROOTFS="kali_rootfs_tmp"
 
 ### START BUILDING ###
-echo '[*]Build info'
+echo '____________________BUILD_INFO____________________'
 echo "Device: $device"
 echo "Environment: $environment"
 echo "Hostname: $hostname"
@@ -59,7 +61,8 @@ echo "Username: $username"
 echo "Password: $password"
 echo "Mobian Suite: $mobian_suite"
 echo "Family: $family"
-
+echo -e '--------------------------------------------------\n\n'
+echo '[*]Build will start in 5 seconds...'; sleep 5
 echo '[+]Create blank image'
 mkimg ${IMG} 5
 
@@ -144,16 +147,25 @@ do
 	nspawn-exec systemctl enable $svc
 done
 
-# Cleanup and Unmount
+echo '[*]Cleanup and unmount'
 echo > ${ROOTFS}/etc/resolv.conf
 nspawn-exec apt clean
 umount ${ROOTFS}/boot
 umount ${ROOTFS}
 rmdir ${ROOTFS}
 losetup -D
+
+echo "[+]Stage 7: Creating blockmap and compressing ${IMG}..."
+if [ "$blockmap" ]
+then
+    bmaptool create ${IMG} > ${IMG}.bmap
+else
+    echo '[*]Skipped blockmap creation'
+fi
 if [ "$compress" ]
 then
-    echo "[+]Stage 7: Compressing ${IMG}..."
     [ -f "${IMG}" ] && xz "${IMG}"
+else
+    echo '[*]Skipped compression'
 fi
 echo '[+]Image Generated.'
