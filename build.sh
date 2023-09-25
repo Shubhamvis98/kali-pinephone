@@ -10,8 +10,9 @@ password="8888"
 mobian_suite="trixie"
 family=
 ARGS=
+compress=
 
-while getopts "t:e:h:u:p:s:" opt
+while getopts "ct:e:h:u:p:s:" opt
 do
     case "$opt" in
         t ) device="$OPTARG" ;;
@@ -20,6 +21,7 @@ do
         u ) username="$OPTARG" ;;
         p ) password="$OPTARG" ;;
         s ) mobian_suite="$OPTARG" ;;
+        c ) compress=1
     esac
 done
 
@@ -149,4 +151,9 @@ umount ${ROOTFS}/boot
 umount ${ROOTFS}
 rmdir ${ROOTFS}
 losetup -D
+if [ "$compress" ]
+then
+    echo "[+]Stage 7: Compressing ${IMG}..."
+    [ -f "${IMG}" ] && xz "${IMG}"
+fi
 echo '[+]Image Generated.'
