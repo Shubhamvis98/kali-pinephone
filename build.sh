@@ -148,6 +148,7 @@ do
 done
 
 echo '[*]Cleanup and unmount'
+echo ${hostname} > ${ROOTFS}/etc/hostname
 echo > ${ROOTFS}/etc/resolv.conf
 nspawn-exec apt clean
 umount ${ROOTFS}/boot
@@ -169,3 +170,4 @@ else
     echo '[*]Skipped compression'
 fi
 echo '[+]Image Generated.'
+

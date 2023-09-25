@@ -3,7 +3,6 @@
 ARCH='arm64'
 qemu_bin='/usr/bin/qemu-aarch64-static'
 machine='debian'
-hostname='fossfrog'
 ENV="RUNLEVEL=1,LANG=C,DEBIAN_FRONTEND=noninteractive,DEBCONF_NOWARNINGS=yes"
 LOOP=`losetup -f`
 BOOT_P=${LOOP}p1
@@ -12,7 +11,7 @@ WORK_DIR=`dirname $0`
 ROOTFS=${WORK_DIR}/kali_rootfs_tmp
 
 nspawn-exec() {
-    systemd-nspawn --hostname $hostname --bind-ro $qemu_bin -M $machine --capability=cap_setfcap -E $ENV -D ${ROOTFS} "$@"
+    systemd-nspawn --bind-ro $qemu_bin -M $machine --capability=cap_setfcap -E $ENV -D ${ROOTFS} "$@"
 }
 
 mkimg() {
