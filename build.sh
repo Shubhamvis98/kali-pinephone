@@ -129,7 +129,7 @@ else
 fi
 
 echo '[*]Enabling kali plymouth theme'
-plymouth-set-default-theme -R kali
+nspawn-exec plymouth-set-default-theme -R kali
 sed -i "/picture-uri/cpicture-uri='file:\/\/\/usr\/share\/backgrounds\/kali\/kali-red-sticker-16x9.jpg'" ${ROOTFS}/usr/share/glib-2.0/schemas/11_mobile.gschema.override
 nspawn-exec glib-compile-schemas /usr/share/glib-2.0/schemas
 
