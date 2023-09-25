@@ -13,7 +13,7 @@ ARGS=
 compress=
 blockmap=
 
-while getopts "ct:e:h:u:p:s:" opt
+while getopts "cbt:e:h:u:p:s:" opt
 do
     case "$opt" in
         t ) device="$OPTARG" ;;
