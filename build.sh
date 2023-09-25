@@ -107,7 +107,7 @@ then
     mkdir -p ${ROOTFS}/etc/skel/.local/share/squeekboard/keyboards/terminal
     curl https://raw.githubusercontent.com/Shubhamvis98/PinePhone_Tweaks/main/layouts/us.yaml > ${ROOTFS}/etc/skel/.local/share/squeekboard/keyboards/us.yaml
     ln -sr ${ROOTFS}/etc/skel/.local/share/squeekboard/keyboards/{us.yaml,terminal/}
-    sed -i 's/-0.07/0/;s/-0.13/0/' /usr/share/plymouth/themes/kali/kali.script
+    sed -i 's/-0.07/0/;s/-0.13/0/' ${ROOTFS}/usr/share/plymouth/themes/kali/kali.script
     mkdir -p ${ROOTFS}/etc/repart.d
     cat << 'EOF' > ${ROOTFS}/etc/repart.d/50-root.conf
     [Partition]
