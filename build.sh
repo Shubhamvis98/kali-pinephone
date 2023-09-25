@@ -102,16 +102,21 @@ nspawn-exec apt update
 nspawn-exec apt install -y ${PACKAGES}
 
 echo '[+]Stage 4: Adding some extra tweaks'
-mkdir -p ${ROOTFS}/etc/skel/.local/share/squeekboard/keyboards/terminal
-curl https://raw.githubusercontent.com/Shubhamvis98/PinePhone_Tweaks/main/layouts/us.yaml > ${ROOTFS}/etc/skel/.local/share/squeekboard/keyboards/us.yaml
-ln -sr ${ROOTFS}/etc/skel/.local/share/squeekboard/keyboards/{us.yaml,terminal/}
-sed -i 's/-0.07/0/;s/-0.13/0/' /usr/share/plymouth/themes/kali/kali.script
-mkdir -p ${ROOTFS}/etc/repart.d
-cat << 'EOF' > ${ROOTFS}/etc/repart.d/50-root.conf
-[Partition]
-Type=root
-Weight=10000
+if [ ! -e "${ROOTFS}/etc/repart.d/50-root.conf" ]
+then
+    mkdir -p ${ROOTFS}/etc/skel/.local/share/squeekboard/keyboards/terminal
+    curl https://raw.githubusercontent.com/Shubhamvis98/PinePhone_Tweaks/main/layouts/us.yaml > ${ROOTFS}/etc/skel/.local/share/squeekboard/keyboards/us.yaml
+    ln -sr ${ROOTFS}/etc/skel/.local/share/squeekboard/keyboards/{us.yaml,terminal/}
+    sed -i 's/-0.07/0/;s/-0.13/0/' /usr/share/plymouth/themes/kali/kali.script
+    mkdir -p ${ROOTFS}/etc/repart.d
+    cat << 'EOF' > ${ROOTFS}/etc/repart.d/50-root.conf
+    [Partition]
+    Type=root
+    Weight=10000
 EOF
+else
+    echo '[*]This has been already done'
+fi
 
 echo '[+]Stage 5: Adding user and changing default shell to zsh'
 if [ ! `grep ${username} ${ROOTFS}/etc/passwd` ]
@@ -122,9 +127,6 @@ then
 else
     echo '[*]User already present'
 fi
-nspawn-exec adduser --disabled-password --gecos "" ${username}
-sed -i "s#${username}:\!:#${username}:`echo ${password} | openssl passwd -1 -stdin`:#" ${ROOTFS}/etc/shadow
-sed -i 's/bash/zsh/' ${ROOTFS}/etc/passwd
 
 echo '[*]Enabling kali plymouth theme'
 plymouth-set-default-theme -R kali
@@ -143,7 +145,6 @@ done
 # Cleanup and Unmount
 echo > ${ROOTFS}/etc/resolv.conf
 nspawn-exec apt clean
-rm -rf ${ROOTFS}/third_stage
 umount ${ROOTFS}/boot
 umount ${ROOTFS}
 rmdir ${ROOTFS}
