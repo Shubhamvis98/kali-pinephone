@@ -93,8 +93,8 @@ EOF
 
 cat << EOF > ${ROOTFS}/etc/fstab
 # <file system> <mount point>   <type>  <options>       <dump>  <pass>
-UUID=`blkid -s UUID -o value ${ROOT_P}`	/	ext4	defaults	0	1
-UUID=`blkid -s UUID -o value ${BOOT_P}`	/boot	ext4	defaults	0	2
+UUID=`blkid -s UUID -o value ${ROOT_P}`	/	ext4	defaults,x-systemd.growfs	0	1
+UUID=`blkid -s UUID -o value ${BOOT_P}`	/boot	ext4	defaults,x-systemd.growfs	0	2
 EOF
 
 echo '[+]Stage 3: Installing device specific and environment packages'
