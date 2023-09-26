@@ -54,6 +54,7 @@ ROOTFS_TAR="kali_${environment}_${device}_`date +%Y%m%d`.tar.gz"
 ROOTFS="kali_rootfs_tmp"
 
 ### START BUILDING ###
+banner
 echo '____________________BUILD_INFO____________________'
 echo "Device: $device"
 echo "Environment: $environment"

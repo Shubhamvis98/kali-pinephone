@@ -10,6 +10,24 @@ ROOT_P=${LOOP}p2
 WORK_DIR=`dirname $0`
 ROOTFS=${WORK_DIR}/kali_rootfs_tmp
 
+banner()
+{
+cat <<'EOF'
+-----------------------------------------
+ _____     _   _____         _
+|   | |___| |_|  |  |_ _ ___| |_ ___ ___
+| | | | -_|  _|     | | |   |  _| -_|  _|
+|_|___|___|_| |__|__|___|_|_|_| |___|_|
+ _____
+|  _  |___ ___
+|   __|  _| . | Image Generator
+|__|  |_| |___| by Shubham Vishwakarma
+
+twitter/git: shubhamvis98
+-----------------------------------------
+EOF
+}
+
 nspawn-exec() {
     systemd-nspawn --bind-ro $qemu_bin -M $machine --capability=cap_setfcap -E $ENV -D ${ROOTFS} "$@"
 }
