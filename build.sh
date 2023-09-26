@@ -13,7 +13,7 @@ ARGS=
 compress=
 blockmap=
 
-while getopts "cbt:e:h:u:p:s:" opt
+while getopts "cbt:e:h:u:p:s:m:" opt
 do
     case "$opt" in
         t ) device="$OPTARG" ;;
@@ -22,6 +22,7 @@ do
         u ) username="$OPTARG" ;;
         p ) password="$OPTARG" ;;
         s ) mobian_suite="$OPTARG" ;;
+        m ) custom_script="$OPTARG" ;;
         c ) compress=1 ;;
         b ) blockmap=1 ;;
     esac
@@ -61,6 +62,7 @@ echo "Username: $username"
 echo "Password: $password"
 echo "Mobian Suite: $mobian_suite"
 echo "Family: $family"
+echo "Custom Script: $custom_script"
 echo -e '--------------------------------------------------\n\n'
 echo '[*]Build will start in 5 seconds...'; sleep 5
 echo '[+]Create blank image'
@@ -146,6 +148,15 @@ for svc in `echo ${services} | tr ' ' '\n'`
 do
 	nspawn-exec systemctl enable $svc
 done
+
+echo '[*]Checking for custom script'
+if [ -f "${custom_script}" ]
+then
+    mkdir -p ${ROOTFS}/ztmpz
+    cp ${custom_script} ${ROOTFS}/ztmpz
+    nspawn-exec bash /ztmpz/${custom_script}
+    [ -d "${ROOTFS}/ztmpz" ] && rm -rf ${ROOTFS}/ztmpz
+fi
 
 echo '[*]Cleanup and unmount'
 echo ${hostname} > ${ROOTFS}/etc/hostname
