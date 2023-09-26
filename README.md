@@ -1,5 +1,20 @@
 # Kali Phosh for PinePhone
 
+```
+-----------------------------------------
+ _____     _   _____         _
+|   | |___| |_|  |  |_ _ ___| |_ ___ ___
+| | | | -_|  _|     | | |   |  _| -_|  _|
+|_|___|___|_| |__|__|___|_|_|_| |___|_|
+ _____
+|  _  |___ ___
+|   __|  _| . | Image Generator
+|__|  |_| |___| by Shubham Vishwakarma
+
+twitter/git: shubhamvis98
+-----------------------------------------
+```
+
 A huge thanks to Mobian Project and Megi's Kernel Patches.
 
 ## Build Instruction
