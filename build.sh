@@ -76,7 +76,7 @@ echo '[+]Stage 2: Debootstrap second stage and adding Mobian apt repo'
 [ -e ${ROOTFS}/etc/passwd ] && echo '[*]Second Stage already done' || nspawn-exec /debootstrap/debootstrap --second-stage
 mkdir -p ${ROOTFS}/etc/apt/sources.list.d ${ROOTFS}/etc/apt/trusted.gpg.d
 echo 'deb http://kali.download/kali kali-rolling main non-free contrib' > ${ROOTFS}/etc/apt/sources.list
-echo 'deb http://repo.mobian.org/ trixie main non-free-firmware' > ${ROOTFS}/etc/apt/sources.list.d/mobian.list
+echo "deb http://repo.mobian.org/ ${mobian_suite} main non-free-firmware" > ${ROOTFS}/etc/apt/sources.list.d/mobian.list
 curl https://salsa.debian.org/Mobian-team/mobian-recipes/-/raw/master/overlays/apt/trusted.gpg.d/mobian.gpg > ${ROOTFS}/etc/apt/trusted.gpg.d/mobian.gpg
 
 cat << EOF > ${ROOTFS}/etc/apt/preferences.d/00-kali-priority
@@ -85,8 +85,12 @@ Pin: release o=Kali
 Pin-Priority: 1000
 EOF
 
-cat << EOF > ${ROOTFS}/etc/apt/preferences.d/10-ubootmenu-mobian
-Package: u-boot-menu*
+cat << EOF > ${ROOTFS}/etc/apt/preferences.d/10-mobian-priority
+Package: u-boot-menu
+Pin: release o=Mobian
+Pin-Priority: 1001
+
+Package: alsa-ucm-conf
 Pin: release o=Mobian
 Pin-Priority: 1001
 EOF
