@@ -21,8 +21,8 @@ do
         h ) hostname="$OPTARG" ;;
         u ) username="$OPTARG" ;;
         p ) password="$OPTARG" ;;
-        s ) mobian_suite="$OPTARG" ;;
-        m ) custom_script="$OPTARG" ;;
+        s ) custom_script="$OPTARG" ;;
+        m ) mobian_suite="$OPTARG" ;;
         c ) compress=1 ;;
         b ) blockmap=1 ;;
     esac
