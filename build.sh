@@ -49,6 +49,15 @@ case "$device" in
     ;;
 esac
 
+PACKAGES="kali-linux-core ${device}-support wget curl rsync systemd-timesyncd"
+case "${environment}" in
+    phosh)
+        PACKAGES="${PACKAGES} phosh-phone phog"
+        services="${services} greetd"
+        ;;
+    xfce|lxde|gnome|kde) PACKAGES="${PACKAGES} kali-desktop-${environment}" ;;
+esac
+
 IMG="kali_${environment}_${device}_`date +%Y%m%d`.img"
 ROOTFS_TAR="kali_${environment}_${device}_`date +%Y%m%d`.tar.gz"
 ROOTFS="kali_rootfs_tmp"
@@ -102,14 +111,6 @@ UUID=`blkid -s UUID -o value ${BOOT_P}`	/boot	ext4	defaults,x-systemd.growfs	0	2
 EOF
 
 echo '[+]Stage 3: Installing device specific and environment packages'
-PACKAGES="kali-linux-core ${device}-support wget curl rsync systemd-timesyncd"
-case "${environment}" in
-    phosh)
-        PACKAGES="${PACKAGES} phosh-phone phog"
-        services="${services} greetd"
-        ;;
-    xfce|lxde|gnome|kde) PACKAGES="${PACKAGES} kali-desktop-${environment}" ;;
-esac
 nspawn-exec apt update
 nspawn-exec apt install -y ${PACKAGES}
 

@@ -29,7 +29,7 @@ EOF
 }
 
 nspawn-exec() {
-    systemd-nspawn --bind-ro $qemu_bin -M $machine --capability=cap_setfcap -E $ENV -D ${ROOTFS} "$@"
+    systemd-nspawn --bind-ro $qemu_bin -M $machine --capability=cap_setfcap $ENV -D ${ROOTFS} "$@"
 }
 
 mkimg() {
