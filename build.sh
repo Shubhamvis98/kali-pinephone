@@ -137,7 +137,9 @@ then
     nspawn-exec adduser --disabled-password --gecos "" ${username}
     sed -i "s#${username}:\!:#${username}:`echo ${password} | openssl passwd -1 -stdin`:#" ${ROOTFS}/etc/shadow
     sed -i 's/bash/zsh/' ${ROOTFS}/etc/passwd
-    nspawn-exec usermod -aG dialout,sudo,audio,video,plugdev,input,render,bluetooth,feedbackd ${username}
+    for i in dialout sudo audio video plugdev input render bluetooth feedbackd netdev; do
+        nspawn-exec usermod -aG ${i} ${username} || true
+    done
 else
     echo '[*]User already present'
 fi
