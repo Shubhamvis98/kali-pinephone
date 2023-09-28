@@ -49,6 +49,15 @@ case "$device" in
     ;;
 esac
 
+PACKAGES="kali-linux-core ${device}-support wget curl rsync systemd-timesyncd"
+case "${environment}" in
+    phosh)
+        PACKAGES="${PACKAGES} phosh-phone phog"
+        services="${services} greetd"
+        ;;
+    xfce|lxde|gnome|kde) PACKAGES="${PACKAGES} kali-desktop-${environment}" ;;
+esac
+
 IMG="kali_${environment}_${device}_`date +%Y%m%d`.img"
 ROOTFS_TAR="kali_${environment}_${device}_`date +%Y%m%d`.tar.gz"
 ROOTFS="kali_rootfs_tmp"
@@ -102,14 +111,6 @@ UUID=`blkid -s UUID -o value ${BOOT_P}`	/boot	ext4	defaults,x-systemd.growfs	0	2
 EOF
 
 echo '[+]Stage 3: Installing device specific and environment packages'
-PACKAGES="kali-linux-core ${device}-support wget curl rsync systemd-timesyncd"
-case "${environment}" in
-    phosh)
-        PACKAGES="${PACKAGES} phosh-phone phog"
-        services="${services} greetd"
-        ;;
-    xfce|lxde|gnome|kde) PACKAGES="${PACKAGES} kali-desktop-${environment}" ;;
-esac
 nspawn-exec apt update
 nspawn-exec apt install -y ${PACKAGES}
 
@@ -136,7 +137,9 @@ then
     nspawn-exec adduser --disabled-password --gecos "" ${username}
     sed -i "s#${username}:\!:#${username}:`echo ${password} | openssl passwd -1 -stdin`:#" ${ROOTFS}/etc/shadow
     sed -i 's/bash/zsh/' ${ROOTFS}/etc/passwd
-    nspawn-exec usermod -aG dialout,sudo,audio,video,plugdev,input,render,bluetooth,feedbackd ${username}
+    for i in dialout sudo audio video plugdev input render bluetooth feedbackd netdev; do
+        nspawn-exec usermod -aG ${i} ${username} || true
+    done
 else
     echo '[*]User already present'
 fi

@@ -3,7 +3,7 @@
 ARCH='arm64'
 qemu_bin='/usr/bin/qemu-aarch64-static'
 machine='debian'
-ENV="RUNLEVEL=1,LANG=C,DEBIAN_FRONTEND=noninteractive,DEBCONF_NOWARNINGS=yes"
+ENV='-E RUNLEVEL=1 -E LANG=C -E DEBIAN_FRONTEND=noninteractive -E DEBCONF_NOWARNINGS=yes'
 LOOP=`losetup -f`
 BOOT_P=${LOOP}p1
 ROOT_P=${LOOP}p2
@@ -29,7 +29,7 @@ EOF
 }
 
 nspawn-exec() {
-    systemd-nspawn --bind-ro $qemu_bin -M $machine --capability=cap_setfcap -E $ENV -D ${ROOTFS} "$@"
+    systemd-nspawn --bind-ro $qemu_bin -M $machine --capability=cap_setfcap $ENV -D ${ROOTFS} "$@"
 }
 
 mkimg() {
