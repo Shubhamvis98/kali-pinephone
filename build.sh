@@ -170,6 +170,8 @@ fi
 echo '[*]Cleanup and unmount'
 echo ${hostname} > ${ROOTFS}/etc/hostname
 echo > ${ROOTFS}/etc/resolv.conf
+grep -q ${hostname} ${ROOTFS}/etc/hosts || \
+	sed -i "1s/$/\n127.0.1.1\t${hostname}/" ${ROOTFS}/etc/hosts
 nspawn-exec apt clean
 umount ${ROOTFS}/boot
 umount ${ROOTFS}
