@@ -117,6 +117,8 @@ nspawn-exec apt install -y ${PACKAGES}
 echo '[+]Stage 4: Adding some extra tweaks'
 if [ ! -e "${ROOTFS}/etc/repart.d/50-root.conf" ]
 then
+    mkdir ${ROOTFS}/etc/kali-motd
+    touch ${ROOTFS}/etc/kali-motd/disable-minimal-warning
     mkdir -p ${ROOTFS}/etc/skel/.local/share/squeekboard/keyboards/terminal
     curl https://raw.githubusercontent.com/Shubhamvis98/PinePhone_Tweaks/main/layouts/us.yaml > ${ROOTFS}/etc/skel/.local/share/squeekboard/keyboards/us.yaml
     ln -sr ${ROOTFS}/etc/skel/.local/share/squeekboard/keyboards/{us.yaml,terminal/}
