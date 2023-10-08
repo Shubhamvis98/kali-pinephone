@@ -40,7 +40,7 @@ mkimg() {
     [ -e $IMG ] && echo -e '[*]$IMG already exists. So, skipping mkimg' && return
     echo "[*]Creating blank Image: ${IMG} of size ${SIZE}GB..."
     dd if=/dev/zero of=$IMG bs=1M count=$((1024*$SIZE)) status=progress
-    echo '[*]Partitioning Image: 256MB BOOT and rest ROOTFS...'
+    echo '[*]Partitioning Image: 512MB BOOT and rest ROOTFS...'
     sleep 1
     cat << 'EOF' | sfdisk $IMG
     label: gpt
