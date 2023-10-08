@@ -40,7 +40,7 @@ mkimg() {
     [ -e $IMG ] && echo -e '[*]$IMG already exists. So, skipping mkimg' && return
     echo "[*]Creating blank Image: ${IMG} of size ${SIZE}GB..."
     dd if=/dev/zero of=$IMG bs=1M count=$((1024*$SIZE)) status=progress
-    echo '[*]Partitioning Image: 256MB BOOT and rest ROOTFS...'
+    echo '[*]Partitioning Image: 512MB BOOT and rest ROOTFS...'
     sleep 1
     cat << 'EOF' | sfdisk $IMG
     label: gpt
@@ -48,8 +48,8 @@ mkimg() {
     unit: sectors
     first-lba: 2048
     sector-size: 512
-    1 : start=2048, size=524288, type=C12A7328-F81F-11D2-BA4B-00A0C93EC93B
-    2 : start=526336, type=B921B045-1DF0-41C3-AF44-4C6F280D3FAE
+    1 : start=2048, size=1048576, type=C12A7328-F81F-11D2-BA4B-00A0C93EC93B
+    2 : start=1050624, type=B921B045-1DF0-41C3-AF44-4C6F280D3FAE
 EOF
     echo '[*]Formatting Partitions...'
     losetup $LOOP -P $IMG
