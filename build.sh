@@ -42,6 +42,7 @@ case "$device" in
   "sdm845" )
     arch="arm64"
     family="sdm845"
+    services="qrtr-ns rmtfs pd-mapper tqftpserv"
     ;;
   * )
     echo "Unsupported device '$device'"
