@@ -45,7 +45,7 @@ case "$device" in
     services="qrtr-ns rmtfs pd-mapper tqftpserv"
     ;;
   * )
-    echo "Unsupported device '$device'"
+    echo "Unsupported device ${device}"
     exit 1
     ;;
 esac
