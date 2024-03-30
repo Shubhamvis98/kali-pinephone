@@ -7,7 +7,7 @@ environment="phosh"
 hostname="fossfrog"
 username="kali"
 password="8888"
-mobian_suite="trixie"
+mobian_suite="bookworm"
 family=
 ARGS=
 compress=
@@ -53,8 +53,8 @@ esac
 PACKAGES="kali-linux-core ${device}-support wget curl rsync systemd-timesyncd"
 case "${environment}" in
     phosh)
-        PACKAGES="${PACKAGES} phosh-phone phog portfolio-filemanager"
-        services="${services} greetd"
+        PACKAGES="${PACKAGES} phosh-phone portfolio-filemanager"
+        services="${services} phosh"
         ;;
     xfce|lxde|gnome|kde) PACKAGES="${PACKAGES} kali-desktop-${environment}" ;;
 esac
