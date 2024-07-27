@@ -87,7 +87,8 @@ echo '[+]Stage 2: Debootstrap second stage and adding Mobian apt repo'
 mkdir -p ${ROOTFS}/etc/apt/sources.list.d ${ROOTFS}/etc/apt/trusted.gpg.d
 sed -i 's/main/main non-free non-free-firmware contrib/g' ${ROOTFS}/etc/apt/sources.list
 echo "deb http://repo.mobian.org/ ${mobian_suite} main non-free-firmware" > ${ROOTFS}/etc/apt/sources.list.d/mobian.list
-curl https://salsa.debian.org/Mobian-team/mobian-recipes/-/raw/master/overlays/apt/trusted.gpg.d/mobian.gpg > ${ROOTFS}/etc/apt/trusted.gpg.d/mobian.gpg
+curl -L http://repo.mobian.org/mobian.gpg -o ${ROOTFS}/etc/apt/trusted.gpg.d/mobian.gpg
+chmod 644 ${ROOTFS}/etc/apt/trusted.gpg.d/mobian.gpg
 
 cat << EOF > ${ROOTFS}/etc/apt/preferences.d/00-kali-priority
 Package: *
