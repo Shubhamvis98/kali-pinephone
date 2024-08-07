@@ -42,7 +42,7 @@ case "$device" in
   "sdm845" )
     arch="arm64"
     family="sdm845"
-    services="qrtr-ns rmtfs pd-mapper tqftpserv"
+    services="qrtr-ns rmtfs pd-mapper tqftpserv qcom-modem-setup droid-juicer"
     ;;
   * )
     echo "Unsupported device ${device}"
