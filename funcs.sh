@@ -79,8 +79,8 @@ EOF
 cleanup() {
     set -x
     echo '[*]Unounting Partitions...'
-    [[ `mountpoint ${ROOTFS}/boot` ]] && umount ${ROOTFS}/boot
-    [[ `mountpoint ${ROOTFS}` ]] && umount ${ROOTFS}
+    mountpoint -q ${ROOTFS}/boot && umount ${ROOTFS}/boot
+    mountpoint -q ${ROOTFS} && umount ${ROOTFS}
     rm -rf ${ROOTFS} ./partuuid
     losetup -d ${LOOP}
 }
