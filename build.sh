@@ -12,6 +12,7 @@ family=
 ARGS=
 compress=
 blockmap=
+IMGSIZE=5   # GBs
 
 while getopts "cbt:e:h:u:p:s:m:" opt
 do
@@ -43,6 +44,8 @@ case "$device" in
     arch="arm64"
     family="sdm845"
     services="qrtr-ns rmtfs pd-mapper tqftpserv qcom-modem-setup droid-juicer"
+    PARTITIONS=1
+    SPARSE=1
     ;;
   * )
     echo "Unsupported device ${device}"
@@ -60,7 +63,7 @@ case "${environment}" in
 esac
 
 IMG="kali_${environment}_${device}_`date +%Y%m%d`.img"
-ROOTFS_TAR="kali_${environment}_${device}_`date +%Y%m%d`.tar.gz"
+ROOTFS_TAR="kali_${environment}_${device}_`date +%Y%m%d`.tgz"
 ROOTFS="kali_rootfs_tmp"
 
 ### START BUILDING ###
@@ -76,8 +79,6 @@ echo "Family: $family"
 echo "Custom Script: $custom_script"
 echo -e '--------------------------------------------------\n\n'
 echo '[*]Build will start in 5 seconds...'; sleep 5
-echo '[+]Create blank image'
-mkimg ${IMG} 5
 
 echo '[+]Stage 1: Debootstrap'
 [ -e ${ROOTFS}/etc ] && echo -e "[*]Debootstrap already done.\nSkipping Debootstrap..." || debootstrap --foreign --arch $arch kali-rolling ${ROOTFS} http://kali.download/kali
@@ -106,10 +107,23 @@ Pin: release o=Mobian
 Pin-Priority: 1001
 EOF
 
+ROOT_UUID=`python3 -c 'from uuid import uuid4; print(uuid4())'`
+BOOT_UUID=`python3 -c 'from uuid import uuid4; print(uuid4())'`
+
+if [[ "$family" == "sunxi" || "$family" == "rockchip" ]]
+then
+    BOOTPART="UUID=${BOOT_UUID}	/boot	ext4	defaults,x-systemd.growfs	0	2"
+fi
+
+cat << EOF > partuuid
+ROOT_UUID=${ROOT_UUID}
+BOOT_UUID=${BOOT_UUID}
+EOF
+
 cat << EOF > ${ROOTFS}/etc/fstab
 # <file system> <mount point>   <type>  <options>       <dump>  <pass>
-UUID=`blkid -s UUID -o value ${ROOT_P}`	/	ext4	defaults,x-systemd.growfs	0	1
-UUID=`blkid -s UUID -o value ${BOOT_P}`	/boot	ext4	defaults,x-systemd.growfs	0	2
+UUID=${ROOT_UUID}	/	ext4	defaults,x-systemd.growfs	0	1
+${BOOTPART}
 EOF
 
 echo '[+]Stage 3: Installing device specific and environment packages'
@@ -172,25 +186,33 @@ then
     [ -d "${ROOTFS}/ztmpz" ] && rm -rf ${ROOTFS}/ztmpz
 fi
 
-echo '[*]Cleanup and unmount'
+echo '[*]Tweaks and cleanup'
 echo ${hostname} > ${ROOTFS}/etc/hostname
-echo > ${ROOTFS}/etc/resolv.conf
 grep -q ${hostname} ${ROOTFS}/etc/hosts || \
 	sed -i "1s/$/\n127.0.1.1\t${hostname}/" ${ROOTFS}/etc/hosts
 nspawn-exec apt clean
-umount ${ROOTFS}/boot
-umount ${ROOTFS}
-rmdir ${ROOTFS}
-losetup -D
 
-echo "[+]Stage 7: Creating blockmap and compressing ${IMG}..."
+echo '[*]Deploy rootfs into EXT4 image'
+tar -cpzf ${ROOTFS_TAR} ${ROOTFS} && rm -rf ${ROOTFS}
+mkimg ${IMG} ${IMGSIZE} ${PARTITIONS}
+tar -xpf ${ROOTFS_TAR}
+
+echo '[*]Cleanup and unmount'
+cleanup
+
+echo "[+]Stage 7: Compressing ${IMG}..."
 if [ "$blockmap" ]
 then
     bmaptool create ${IMG} > ${IMG}.bmap
 else
     echo '[*]Skipped blockmap creation'
 fi
-if [ "$compress" ]
+
+if [ "$SPARSE" ]
+then
+    img2simg ${IMG} ${IMG}_SPARSE
+    mv -v ${IMG}_SPARSE ${IMG}
+elif [ "$compress" ]
 then
     [ -f "${IMG}" ] && xz "${IMG}"
 else
