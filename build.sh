@@ -223,7 +223,8 @@ if [ "$SPARSE" ]
 then
     img2simg ${IMG} ${IMG}_SPARSE
     mv -v ${IMG}_SPARSE ${IMG}
-elif [ "$compress" ]
+fi
+if [ "$compress" ]
 then
     [ -f "${IMG}" ] && xz "${IMG}"
 else
