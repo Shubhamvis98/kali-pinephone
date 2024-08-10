@@ -45,7 +45,7 @@ case "$device" in
     family="sdm845"
     services="qrtr-ns rmtfs pd-mapper tqftpserv qcom-modem-setup droid-juicer"
     PARTITIONS=1
-    SPARSE=1
+    compress=1
     ;;
   * )
     echo "Unsupported device ${device}"
