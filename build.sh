@@ -80,7 +80,7 @@ echo "Custom Script: $custom_script"
 echo -e '--------------------------------------------------\n\n'
 echo '[*]Build will start in 5 seconds...'; sleep 5
 
-[ -e "base.tgz" ] && tar --strip-components=1 -xpf base.tgz -C ${ROOTFS}
+[ -e "base.tgz" ] && mkdir ${ROOTFS} && tar --strip-components=1 -xpf base.tgz -C ${ROOTFS}
 
 echo '[+]Stage 1: Debootstrap'
 [ -e ${ROOTFS}/etc ] && echo -e "[*]Debootstrap already done.\nSkipping Debootstrap..." || debootstrap --foreign --arch $arch kali-rolling ${ROOTFS} http://kali.download/kali
