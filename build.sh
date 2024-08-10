@@ -80,6 +80,8 @@ echo "Custom Script: $custom_script"
 echo -e '--------------------------------------------------\n\n'
 echo '[*]Build will start in 5 seconds...'; sleep 5
 
+[ -e "base.tgz" ] && tar --strip-components=1 -xpf base.tgz -C ${ROOTFS}
+
 echo '[+]Stage 1: Debootstrap'
 [ -e ${ROOTFS}/etc ] && echo -e "[*]Debootstrap already done.\nSkipping Debootstrap..." || debootstrap --foreign --arch $arch kali-rolling ${ROOTFS} http://kali.download/kali
 
@@ -191,6 +193,14 @@ echo ${hostname} > ${ROOTFS}/etc/hostname
 grep -q ${hostname} ${ROOTFS}/etc/hosts || \
 	sed -i "1s/$/\n127.0.1.1\t${hostname}/" ${ROOTFS}/etc/hosts
 nspawn-exec apt clean
+
+if [ ${family} == "sdm845" ]
+then
+    cp bin/bootloader.sh ${ROOTFS}/bootloader.sh
+    chmod +x ${ROOTFS}/bootloader.sh
+    nspawn-exec /bootloader.sh ${family}
+    mv -v ${ROOTFS}/boot*img .
+fi
 
 echo '[*]Deploy rootfs into EXT4 image'
 tar -cpzf ${ROOTFS_TAR} ${ROOTFS} && rm -rf ${ROOTFS}
