@@ -200,6 +200,7 @@ then
     chmod +x ${ROOTFS}/bootloader.sh
     nspawn-exec /bootloader.sh ${family}
     mv -v ${ROOTFS}/boot*img .
+    rm ${ROOTFS}/bootloader.sh
 fi
 
 echo '[*]Deploy rootfs into EXT4 image'
