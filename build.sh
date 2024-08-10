@@ -224,6 +224,7 @@ then
     img2simg ${IMG} ${IMG}_SPARSE
     mv -v ${IMG}_SPARSE ${IMG}
 fi
+
 if [ "$compress" ]
 then
     [ -f "${IMG}" ] && xz "${IMG}"
