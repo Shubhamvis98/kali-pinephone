@@ -197,6 +197,9 @@ nspawn-exec apt clean
 
 if [ ${family} == "sdm845" ]
 then
+    nspawn-exec sudo -u ${username} systemctl --user disable pipewire pipewire-pulse
+    nspawn-exec sudo -u ${username} systemctl --user mask pipewire pipewire-pulse
+    nspawn-exec sudo -u ${username} systemctl --user enable pulseaudio
     cp bin/bootloader.sh ${ROOTFS}/bootloader.sh
     chmod +x ${ROOTFS}/bootloader.sh
     nspawn-exec /bootloader.sh ${family}
