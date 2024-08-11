@@ -7,7 +7,7 @@ environment="phosh"
 hostname="fossfrog"
 username="kali"
 password="8888"
-mobian_suite="bookworm"
+mobian_suite="trixie"
 family=
 ARGS=
 compress=
@@ -44,6 +44,7 @@ case "$device" in
     arch="arm64"
     family="sdm845"
     services="qrtr-ns rmtfs pd-mapper tqftpserv qcom-modem-setup droid-juicer"
+    PACKAGES="pulseaudio"
     PARTITIONS=1
     SPARSE=1
     ;;
@@ -53,7 +54,7 @@ case "$device" in
     ;;
 esac
 
-PACKAGES="kali-linux-core ${device}-support wget curl rsync systemd-timesyncd"
+PACKAGES="${PACKAGES} kali-linux-core ${device}-support wget curl rsync systemd-timesyncd"
 case "${environment}" in
     phosh)
         PACKAGES="${PACKAGES} phosh-phone phog portfolio-filemanager"
