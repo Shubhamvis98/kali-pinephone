@@ -87,7 +87,7 @@ cat /boot/vmlinuz-${KERNEL_VERSION} \
 
 # Create the bootimg as it's the only format recognized by the Android bootloader
 
-abootimg --create /boot-${FULLMODEL}.img -c kerneladdr=${KERNELADDR} \
+abootimg --create /boot_${FULLMODEL}_`date +%Y%m%d`.img -c kerneladdr=${KERNELADDR} \
 	-c ramdiskaddr=${RAMDISKADDR} -c secondaddr=0x0 -c tagsaddr=${TAGSADDR} -c pagesize=4096 \
 	-c cmdline="mobile.root=${ROOTDEV} ${CMDLINE} init=/sbin/init ro quiet splash" \
 	-k /tmp/kernel-dtb -r /boot/initrd.img-${KERNEL_VERSION}
