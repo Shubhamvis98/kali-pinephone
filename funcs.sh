@@ -65,8 +65,8 @@ mkimg() {
 EOF
         echo '[*]Formatting Partitions...'
         losetup ${LOOP} -P ${IMG}
-        [ -e ${BOOT_P} ] mkfs.ext4 -L BOOT -U ${BOOT_UUID} ${BOOT_P}
-        [ -e ${ROOT_P} ] mkfs.ext4 -L ROOT -U ${ROOT_UUID} ${ROOT_P}
+        [ -e ${BOOT_P} ] && mkfs.ext4 -L BOOT -U ${BOOT_UUID} ${BOOT_P}
+        [ -e ${ROOT_P} ] && mkfs.ext4 -L ROOT -U ${ROOT_UUID} ${ROOT_P}
 
         echo '[*]Mounting Partitions...'
         mkdir -pv ${ROOTFS}
