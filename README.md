@@ -32,6 +32,7 @@ A huge thanks to Mobian Project and Megi's Kernel Patches.
     - debootstrap
     - qemu-user-static
     - bmap-tools
+    - android-sdk-libsparse-utils
 
 Download official Kali Nethunter for PinePhone and PinePhone Pro from Kali download page: https://www.kali.org/get-kali/#kali-mobile
 
