@@ -42,7 +42,7 @@ case "$device" in
     ;;
   "sdm845" )
     arch="arm64"
-    family="sdm845"
+    family="qcom"
     services="qrtr-ns rmtfs pd-mapper tqftpserv qcom-modem-setup droid-juicer"
     PACKAGES="pulseaudio"
     PARTITIONS=1
@@ -195,7 +195,7 @@ grep -q ${hostname} ${ROOTFS}/etc/hosts || \
 	sed -i "1s/$/\n127.0.1.1\t${hostname}/" ${ROOTFS}/etc/hosts
 nspawn-exec apt clean
 
-if [ ${family} == "sdm845" ]
+if [ ${family} == "qcom" ]
 then
     nspawn-exec sudo -u ${username} systemctl --user disable pipewire pipewire-pulse
     nspawn-exec sudo -u ${username} systemctl --user mask pipewire pipewire-pulse
