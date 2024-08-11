@@ -24,6 +24,9 @@ A huge thanks to Mobian Project and Megi's Kernel Patches.
 
 #PinePhone Pro
 ./build.sh -t pinephonepro
+
+#SDM845
+./build.sh -t sdm845
 ```
 
 ## Required packages:
