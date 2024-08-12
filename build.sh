@@ -94,20 +94,10 @@ echo "deb http://repo.mobian.org/ ${mobian_suite} main non-free non-free-firmwar
 curl -L http://repo.mobian.org/mobian.gpg -o ${ROOTFS}/etc/apt/trusted.gpg.d/mobian.gpg
 chmod 644 ${ROOTFS}/etc/apt/trusted.gpg.d/mobian.gpg
 
-cat << EOF > ${ROOTFS}/etc/apt/preferences.d/00-kali-priority
+cat << EOF > ${ROOTFS}/etc/apt/preferences.d/00-mobian-priority
 Package: *
-Pin: release o=Kali
+Pin: release o=Mobian
 Pin-Priority: 1000
-EOF
-
-cat << EOF > ${ROOTFS}/etc/apt/preferences.d/10-mobian-priority
-Package: u-boot-menu
-Pin: release o=Mobian
-Pin-Priority: 1001
-
-Package: alsa-ucm-conf
-Pin: release o=Mobian
-Pin-Priority: 1001
 EOF
 
 ROOT_UUID=`python3 -c 'from uuid import uuid4; print(uuid4())'`
