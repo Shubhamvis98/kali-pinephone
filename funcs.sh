@@ -84,3 +84,8 @@ cleanup() {
     rm -rf ${ROOTFS} ./partuuid
     losetup -d ${LOOP}
 }
+
+trap ctrl_c INT
+ctrl_c() {
+    exit 1
+}
