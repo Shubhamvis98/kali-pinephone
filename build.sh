@@ -161,8 +161,11 @@ nspawn-exec plymouth-set-default-theme -R kali
 #sed -i "/picture-uri/cpicture-uri='file:\/\/\/usr\/share\/backgrounds\/kali\/kali-red-sticker-16x9.jpg'" ${ROOTFS}/usr/share/glib-2.0/schemas/10_desktop-base.gschema.override
 nspawn-exec glib-compile-schemas /usr/share/glib-2.0/schemas
 
-echo '[*]Update u-boot config...'
-nspawn-exec u-boot-update
+if [[ "$family" == "sunxi" || "$family" == "rockchip" ]]
+then
+    echo '[*]Update u-boot config...'
+    nspawn-exec u-boot-update
+fi
 
 echo '[+]Stage 6: Enable services'
 for svc in `echo ${services} | tr ' ' '\n'`
