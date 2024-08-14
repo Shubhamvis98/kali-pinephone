@@ -30,17 +30,17 @@ do
 done
 
 case "$device" in
-  "pinephone" )
+  "pinephone"|"pinetab"|"sunxi" )
     arch="arm64"
     family="sunxi"
     services="eg25-manager"
     ;;
-  "pinephonepro" )
+  "pinephonepro"|"pinetab2"|"rockchip" )
     arch="arm64"
     family="rockchip"
     services="eg25-manager"
     ;;
-  "sdm845" )
+  "pocof1"|"oneplus6"|"oneplus6t"|"sdm845" )
     arch="arm64"
     family="sdm845"
     services="qrtr-ns rmtfs pd-mapper tqftpserv qcom-modem-setup droid-juicer"
@@ -54,7 +54,7 @@ case "$device" in
     ;;
 esac
 
-PACKAGES="${PACKAGES} kali-linux-core ${device}-support wget curl rsync systemd-timesyncd"
+PACKAGES="${PACKAGES} kali-linux-core ${family}-support wget curl rsync systemd-timesyncd"
 case "${environment}" in
     phosh)
         PACKAGES="${PACKAGES} phosh-phone phog portfolio-filemanager"
