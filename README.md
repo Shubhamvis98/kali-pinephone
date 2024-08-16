@@ -1,4 +1,4 @@
-# Kali Phosh for PinePhone
+# Kali Phosh for PinePhone and other Qcom Phones
 
 ```
 -----------------------------------------
