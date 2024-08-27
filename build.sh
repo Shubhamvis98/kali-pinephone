@@ -60,6 +60,10 @@ case "${environment}" in
         PACKAGES="${PACKAGES} phosh-phone phog portfolio-filemanager"
         services="${services} greetd"
         ;;
+    plasma-mobile)
+        PACKAGES="${PACKAGES} plasma-mobile"
+        services="${services} plasma-mobile"
+        ;;
     xfce|lxde|gnome|kde) PACKAGES="${PACKAGES} kali-desktop-${environment}" ;;
 esac
 
@@ -89,7 +93,7 @@ echo '[+]Stage 1: Debootstrap'
 echo '[+]Stage 2: Debootstrap second stage and adding Mobian apt repo'
 [ -e ${ROOTFS}/etc/passwd ] && echo '[*]Second Stage already done' || nspawn-exec /debootstrap/debootstrap --second-stage
 mkdir -p ${ROOTFS}/etc/apt/sources.list.d ${ROOTFS}/etc/apt/trusted.gpg.d
-sed -i 's/main/main non-free non-free-firmware contrib/g' ${ROOTFS}/etc/apt/sources.list
+sed -i 's/main/main contrib non-free non-free-firmware/g' ${ROOTFS}/etc/apt/sources.list
 echo "deb http://repo.mobian.org/ ${mobian_suite} main non-free non-free-firmware" > ${ROOTFS}/etc/apt/sources.list.d/mobian.list
 curl -L http://repo.mobian.org/mobian.gpg -o ${ROOTFS}/etc/apt/trusted.gpg.d/mobian.gpg
 chmod 644 ${ROOTFS}/etc/apt/trusted.gpg.d/mobian.gpg
