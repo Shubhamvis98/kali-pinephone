@@ -35,7 +35,8 @@ bootimg_offsets() {
     echo "${ARGS}"
 }
 
-ROOTPART="UUID=$(findmnt -n -o UUID /)"
+grep -P '^UUID.*[ \t]/[ \t]' /etc/fstab | awk '{print $1}'
+
 if [ "${ROOTPART}" = "UUID=" ]; then
     # This means we're using an encrypted rootfs
     ROOTPART="/dev/mapper/root"
