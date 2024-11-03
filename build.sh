@@ -104,12 +104,6 @@ Pin: release o=Mobian
 Pin-Priority: 700
 EOF
 
-cat << EOF > ${ROOTFS}/etc/apt/preferences.d/10-fossfrog-priority
-Package: *
-Pin: release o=fossfrog
-Pin-Priority: 1000
-EOF
-
 ROOT_UUID=`python3 -c 'from uuid import uuid4; print(uuid4())'`
 BOOT_UUID=`python3 -c 'from uuid import uuid4; print(uuid4())'`
 
