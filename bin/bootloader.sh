@@ -1,123 +1,94 @@
-#!/bin/bash
+#!/bin/sh
 
+SCRIPT="$0"
 DEVICE="$1"
 
-generate_bootimg()
-{
-OPTIONS=r:s:v:m:w:k:d:t:
-LONGOPTIONS=rootdev:,soc:,vendor:,model:,variant:,kerneladdr:,ramdiskaddr:,tagsaddr:
-
-PARSED=$(getopt -o $OPTIONS -l $LONGOPTIONS -- "$@")
-if [ "$?" != "0" ]; then
-  exit
-fi
-eval set -- "$PARSED"
-
-# Default values
-ROOTDEV=""
-SOC=""
-VENDOR=""
-MODEL=""
-VARIANT=""
-KERNELADDR="0x8000"
-RAMDISKADDR="0x1000000"
-TAGSADDR="0x100"
-KERNEL_VERSION=$(linux-version list | tail -1)
-
-while true
-do
-	case "$1" in
-		-r|--rootdev)
-			ROOTDEV="$2"
-			shift 2;;
-		-s|--soc)
-			SOC="$2"
-			shift 2;;
-		-v|--vendor)
-			VENDOR="$2"
-			shift 2;;
-		-m|--model)
-			MODEL="$2"
-			shift 2;;
-		-w|--variant)
-			VARIANT="$2"
-			shift 2;;
-		-k|--kerneladdr)
-			KERNELADDR="$2"
-			shift 2;;
-		-d|--ramdiskaddr)
-			RAMDISKADDR="$2"
-			shift 2;;
-		-t|--tagsaddr)
-			TAGSADDR="$2"
-			shift 2;;
-		*)
-			break;;
-	esac
-done
-
-echo """
-ROOTDEV: $ROOTDEV
-SOC: $SOC
-VENDOR: $VENDOR
-MODEL: $MODEL
-VARIANT: $VARIANT
-KERNELADDR: $KERNELADDR
-RAMDISKADDR: $RAMDISKADDR
-TAGSADDR: $TAGSADDR
-"""
-
-CMDLINE="mobile.qcomsoc=${SOC} mobile.vendor=${VENDOR} mobile.model=${MODEL}"
-if [ "${VARIANT}" ]; then
-	CMDLINE="${CMDLINE} mobile.variant=${VARIANT}"
-	FULLMODEL="${MODEL}-${VARIANT}"
-else
-	FULLMODEL="${MODEL}"
+CONFIG="$(dirname ${SCRIPT})/configs/${DEVICE}.toml"
+if ! [ -f "${CONFIG}" ]; then
+    echo "ERROR: No configuration for device type '${DEVICE}'!"
+    exit 1
 fi
 
-# Workaround a bug in the SDHCI driver on SM7225
-if [ "${SOC}" = "qcom/sm7225" ]; then
-	CMDLINE="${CMDLINE} sdhci.debug_quirks=0x40"
-fi
+bootimg_offsets() {
+    local BOOTIMG="$1"
 
-# Append DTB to kernel
-echo "Creating boot image for ${FULLMODEL}..."
-cat /boot/vmlinuz-${KERNEL_VERSION} \
-	/usr/lib/linux-image-${KERNEL_VERSION}/${SOC}-${VENDOR}-${FULLMODEL}.dtb > /tmp/kernel-dtb
+    local VERSION="$(echo "${BOOTIMG}" | jq -r 'if .version then .version else 0 end' -)"
+    local KERNEL="$(echo "${BOOTIMG}" | jq -r '.kernel + .base' -)"
+    local RAMDISK="$(echo "${BOOTIMG}" | jq -r '.ramdisk + .base' -)"
+    local SECOND="$(echo "${BOOTIMG}" | jq -r '.second + .base' -)"
+    local TAGS="$(echo "${BOOTIMG}" | jq -r '.tags + .base' -)"
+    local PAGE_SIZE="$(echo "${BOOTIMG}" | jq -r '.pagesize' -)"
+    local DTB="$(echo "${BOOTIMG}" | jq -r 'if .dtb then .dtb + .base else "" end' -)"
 
-# Create the bootimg as it's the only format recognized by the Android bootloader
+    local ARGS="--kernel_offset ${KERNEL} --ramdisk_offset ${RAMDISK}"
+    ARGS="${ARGS} --second_offset ${SECOND} --tags_offset ${TAGS}"
+    ARGS="${ARGS} --pagesize ${PAGE_SIZE}"
 
-abootimg --create /boot_${FULLMODEL}_`date +%Y%m%d`.img -c kerneladdr=${KERNELADDR} \
-	-c ramdiskaddr=${RAMDISKADDR} -c secondaddr=0x0 -c tagsaddr=${TAGSADDR} -c pagesize=4096 \
-	-c cmdline="mobile.root=${ROOTDEV} ${CMDLINE} init=/sbin/init ro quiet splash" \
-	-k /tmp/kernel-dtb -r /boot/initrd.img-${KERNEL_VERSION}
+    if [ "${VERSION}" != "0" ]; then
+        ARGS="${ARGS} --header_version ${VERSION}"
+    fi
+
+    if [ "${DTB}" ]; then
+        ARGS="${ARGS} --dtb_offset ${DTB}"
+    fi
+
+    echo "${ARGS}"
 }
 
-ROOTPART=`grep -P '^UUID.*[ \t]/[ \t]' /etc/fstab | awk '{print $1}'`
-
+ROOTPART="UUID=$(findmnt -n -o UUID /)"
 if [ "${ROOTPART}" = "UUID=" ]; then
-	# This means we're using an encrypted rootfs
-	ROOTPART="/dev/mapper/root"
+    # This means we're using an encrypted rootfs
+    ROOTPART="/dev/mapper/root"
 fi
-KERNEL_VERSION=$(linux-version list)
+KERNEL_VERSION=$(linux-version list | tail -1)
 
-case "${DEVICE}" in
-	"sdm845")
-		generate_bootimg -r "${ROOTPART}" -s "qcom/sdm845" -v "oneplus" -m "enchilada"
-		generate_bootimg -r "${ROOTPART}" -s "qcom/sdm845" -v "oneplus" -m "fajita"
-		generate_bootimg -r "${ROOTPART}" -s "qcom/sdm845" -v "shift" -m "axolotl"
-		generate_bootimg -r "${ROOTPART}" -s "qcom/sdm845" -v "xiaomi" -m "beryllium" -w "tianma"
-		generate_bootimg -r "${ROOTPART}" -s "qcom/sdm845" -v "xiaomi" -m "beryllium" -w "ebbg"
-		generate_bootimg -r "${ROOTPART}" -s "qcom/sdm845" -v "xiaomi" -m "polaris"
-		;;
-	"sm7225")
-		generate_bootimg -r "${ROOTPART}" -s "qcom/sm7225" -v "fairphone" -m "fp4"
-		;;
-	"sm7325")
-		generate_bootimg -r "${ROOTPART}" -s "qcom/sm7325" -v "nothing" -m "spacewar" -k 0x10000000 -d 0x10000000 -t 0x10000000
-		;;
-	*)
-		echo "ERROR: unsupported device ${DEVICE}"
-		exit 1
-		;;
-esac
+# Parse config for generic parameters for the current SoC
+SOC=$(tomlq -r "if .chipset then .chipset else \"${DEVICE}\" end" ${CONFIG})
+MKBOOTIMG_ARGS="$(bootimg_offsets "$(tomlq -r '.bootimg' ${CONFIG})")"
+
+for i in $(seq 0 $(tomlq -r '.device | length - 1' ${CONFIG})); do
+    # Parse device-specific parameters
+    VENDOR=$(tomlq -r ".device[$i].vendor" ${CONFIG})
+    MODEL=$(tomlq -r ".device[$i].model" ${CONFIG})
+    VARIANT=$(tomlq -r "if .device[$i].variant then .device[$i].variant else \"\" end" ${CONFIG})
+    DEVICE_SOC=$(tomlq -r "if .device[$i].chipset then .device[$i].chipset else \"${SOC}\" end" ${CONFIG})
+    APPEND=$(tomlq -r "if .device[$i].append then .device[$i].append else \"\" end" ${CONFIG})
+    # Extract device-specific bootimg parameters in JSON format for processing by `bootimg_offsets()`
+    DEVICE_BOOTIMG=$(tomlq -r "if .device[$i].bootimg then .device[$i].bootimg else \"\" end" ${CONFIG})
+
+    CMDLINE="mobile.qcomsoc=qcom/${DEVICE_SOC} mobile.vendor=${VENDOR} mobile.model=${MODEL}"
+    if [ "${VARIANT}" ]; then
+        CMDLINE="${CMDLINE} mobile.variant=${VARIANT}"
+        FULLMODEL="${MODEL}-${VARIANT}"
+    else
+        FULLMODEL="${MODEL}"
+    fi
+    DTB_FILE="/usr/lib/linux-image-${KERNEL_VERSION}/qcom/${DEVICE_SOC}-${VENDOR}-${FULLMODEL}.dtb"
+
+    LOGLEVEL="quiet"
+    # Include additional cmdline args if specified
+    if [ "${APPEND}" ]; then
+        CMDLINE="${CMDLINE} ${APPEND}"
+        if echo "${APPEND}" | grep -q "console="; then
+            LOGLEVEL="loglevel=7"
+        fi
+    fi
+
+    if [ "${DEVICE_BOOTIMG}" ]; then
+        BOOTIMG_ARGS="$(bootimg_offsets "${DEVICE_BOOTIMG}")"
+    else
+        BOOTIMG_ARGS="${MKBOOTIMG_ARGS}"
+    fi
+
+    if echo "${BOOTIMG_ARGS}" | grep -q "dtb_offset"; then
+        BOOTIMG_ARGS="${BOOTIMG_ARGS} --dtb ${DTB_FILE}"
+    fi
+
+    echo "Creating boot image for ${FULLMODEL}..."
+    cat /boot/vmlinuz-${KERNEL_VERSION} ${DTB_FILE} > /tmp/kernel-dtb
+
+    # Create the bootimg as it's the only format recognized by the Android bootloader
+    mkbootimg -o /boot_${FULLMODEL}_`date +%Y%m%d`.img ${BOOTIMG_ARGS} \
+        --kernel /tmp/kernel-dtb --ramdisk /boot/initrd.img-${KERNEL_VERSION} \
+        --cmdline "mobile.root=${ROOTPART} ${CMDLINE} init=/sbin/init ro ${LOGLEVEL} splash"
+done

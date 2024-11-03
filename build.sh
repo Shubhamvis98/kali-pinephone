@@ -101,6 +101,12 @@ chmod 644 ${ROOTFS}/etc/apt/trusted.gpg.d/mobian.gpg
 cat << EOF > ${ROOTFS}/etc/apt/preferences.d/00-mobian-priority
 Package: *
 Pin: release o=Mobian
+Pin-Priority: 700
+EOF
+
+cat << EOF > ${ROOTFS}/etc/apt/preferences.d/10-fossfrog-priority
+Package: *
+Pin: release o=fossfrog
 Pin-Priority: 1000
 EOF
 
@@ -197,11 +203,11 @@ then
     nspawn-exec sudo -u ${username} systemctl --user disable pipewire pipewire-pulse
     nspawn-exec sudo -u ${username} systemctl --user mask pipewire pipewire-pulse
     nspawn-exec sudo -u ${username} systemctl --user enable pulseaudio
-    cp bin/bootloader.sh ${ROOTFS}/bootloader.sh
+    cp -r bin/bootloader.sh bin/configs ${ROOTFS}
     chmod +x ${ROOTFS}/bootloader.sh
     nspawn-exec /bootloader.sh ${family}
     mv -v ${ROOTFS}/boot*img .
-    rm ${ROOTFS}/bootloader.sh
+    rm -rf ${ROOTFS}/bootloader.sh ${ROOTFS}/configs
 fi
 
 echo '[*]Deploy rootfs into EXT4 image'

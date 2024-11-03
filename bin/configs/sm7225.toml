@@ -1,0 +1,11 @@
+[bootimg]
+base = 0x0
+kernel = 0x8000
+ramdisk = 0x1000000
+second = 0
+tags = 0x100
+pagesize = 4096
+
+[[device]]
+vendor = "fairphone"
+model = "fp4"
