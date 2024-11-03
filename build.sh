@@ -33,18 +33,18 @@ case "$device" in
   "pinephone"|"pinetab"|"sunxi" )
     arch="arm64"
     family="sunxi"
-    services="eg25-manager"
+    SERVICES="eg25-manager"
     ;;
   "pinephonepro"|"pinetab2"|"rockchip" )
     arch="arm64"
     family="rockchip"
-    services="eg25-manager"
+    SERVICES="eg25-manager"
     ;;
   "pocof1"|"oneplus6"|"oneplus6t"|"sdm845" )
     arch="arm64"
     family="sdm845"
-    services="qrtr-ns rmtfs pd-mapper tqftpserv qcom-modem-setup droid-juicer"
-    PACKAGES="pulseaudio"
+    SERVICES="qrtr-ns rmtfs pd-mapper tqftpserv qcom-modem-setup droid-juicer"
+    PACKAGES="pulseaudio yq"
     PARTITIONS=1
     SPARSE=1
     ;;
@@ -58,11 +58,11 @@ PACKAGES="${PACKAGES} kali-linux-core ${family}-support wget curl rsync systemd-
 case "${environment}" in
     phosh)
         PACKAGES="${PACKAGES} phosh-phone phog portfolio-filemanager"
-        services="${services} greetd"
+        SERVICES="${SERVICES} greetd"
         ;;
     plasma-mobile)
         PACKAGES="${PACKAGES} plasma-mobile"
-        services="${services} plasma-mobile"
+        SERVICES="${SERVICES} plasma-mobile"
         ;;
     xfce|lxde|gnome|kde) PACKAGES="${PACKAGES} kali-desktop-${environment}" ;;
 esac
@@ -172,7 +172,7 @@ then
 fi
 
 echo '[+]Stage 6: Enable services'
-for svc in `echo ${services} | tr ' ' '\n'`
+for svc in `echo ${SERVICES} | tr ' ' '\n'`
 do
 	nspawn-exec systemctl enable $svc
 done
