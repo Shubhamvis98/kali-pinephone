@@ -54,7 +54,9 @@ case "$device" in
     ;;
 esac
 
-PACKAGES="${PACKAGES} kali-linux-core ${family}-support wget curl rsync systemd-timesyncd"
+PACKAGES="${PACKAGES} kali-linux-core wget curl rsync systemd-timesyncd"
+DPACKAGES="${family}-support"
+
 case "${environment}" in
     phosh)
         PACKAGES="${PACKAGES} phosh-phone phog portfolio-filemanager"
@@ -126,6 +128,11 @@ EOF
 echo '[+]Stage 3: Installing device specific and environment packages'
 nspawn-exec apt update
 nspawn-exec apt install -y ${PACKAGES}
+
+nspawn-exec sh -c "$(curl -fsSL https://repo.fossfrog.in/setup.sh)"
+
+nspawn-exec apt update
+nspawn-exec apt install -y ${DPACKAGES}
 
 echo '[+]Stage 4: Adding some extra tweaks'
 if [ ! -e "${ROOTFS}/etc/repart.d/50-root.conf" ]
