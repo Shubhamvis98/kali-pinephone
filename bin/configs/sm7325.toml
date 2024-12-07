@@ -8,4 +8,4 @@ pagesize = 4096
 
 [[device]]
 vendor = "nothing"
-model = "phone1"
+model = "spacewar"
