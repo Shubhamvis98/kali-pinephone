@@ -48,6 +48,14 @@ case "$device" in
     PARTITIONS=1
     SPARSE=1
     ;;
+  "nothingphone1"|"sm7325" )
+    arch="arm64"
+    family="sm7325"
+    SERVICES="qrtr-ns rmtfs pd-mapper tqftpserv qcom-modem-setup droid-juicer"
+    PACKAGES="pulseaudio yq"
+    PARTITIONS=1
+    SPARSE=1
+    ;;
   * )
     echo "Unsupported device ${device}"
     exit 1
