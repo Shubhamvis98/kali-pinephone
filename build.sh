@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -e
 
 . ./funcs.sh
 
@@ -8,10 +8,9 @@ hostname="fossfrog"
 username="kali"
 password="8888"
 mobian_suite="trixie"
-MIRROR="https://kali.download/kali"
 IMGSIZE=5   # GBs
 
-while getopts "cbt:e:h:u:p:s:m:" opt 2>/dev/null
+while getopts "cbt:e:h:u:p:s:m:" opt
 do
     case "$opt" in
         t ) device="$OPTARG" ;;
@@ -21,7 +20,6 @@ do
         p ) password="$OPTARG" ;;
         s ) custom_script="$OPTARG" ;;
         m ) mobian_suite="$OPTARG" ;;
-        M ) MIRROR="$OPTARG" ;;
         c ) compress=1 ;;
         b ) blockmap=1 ;;
     esac
@@ -37,6 +35,7 @@ case "$device" in
     arch="arm64"
     family="rockchip"
     SERVICES="eg25-manager"
+    PACKAGES="systemd-repart"
     ;;
   "pocof1"|"oneplus6"|"oneplus6t"|"sdm845" )
     arch="arm64"
@@ -72,7 +71,9 @@ case "${environment}" in
         PACKAGES="${PACKAGES} plasma-mobile"
         SERVICES="${SERVICES} plasma-mobile"
         ;;
-    xfce|lxde|gnome|kde) PACKAGES="${PACKAGES} kali-desktop-${environment}" ;;
+    xfce|lxde|gnome|kde)
+        PACKAGES="${PACKAGES} kali-desktop-${environment}"
+        ;;
 esac
 
 IMG="kali_${environment}_${device}_`date +%Y%m%d`.img"
@@ -96,7 +97,7 @@ echo '[*]Build will start in 5 seconds...'; sleep 5
 [ -e "base.tgz" ] && mkdir ${ROOTFS} && tar --strip-components=1 -xpf base.tgz -C ${ROOTFS}
 
 echo '[+]Stage 1: Debootstrap'
-[ -e ${ROOTFS}/etc ] && echo -e "[*]Debootstrap already done.\nSkipping Debootstrap..." || debootstrap --foreign --arch $arch kali-rolling ${ROOTFS} ${MIRROR}
+[ -e ${ROOTFS}/etc ] && echo -e "[*]Debootstrap already done.\nSkipping Debootstrap..." || debootstrap --foreign --arch $arch kali-rolling ${ROOTFS} http://kali.download/kali
 
 echo '[+]Stage 2: Debootstrap second stage and adding Mobian apt repo'
 [ -e ${ROOTFS}/etc/passwd ] && echo '[*]Second Stage already done' || nspawn-exec /debootstrap/debootstrap --second-stage
@@ -143,17 +144,17 @@ nspawn-exec apt install -y ${DPACKAGES}
 echo '[+]Stage 4: Adding some extra tweaks'
 if [ ! -e "${ROOTFS}/etc/repart.d/50-root.conf" ]
 then
-    mkdir ${ROOTFS}/etc/kali-motd
+    mkdir -p ${ROOTFS}/etc/kali-motd
     touch ${ROOTFS}/etc/kali-motd/disable-minimal-warning
     mkdir -p ${ROOTFS}/etc/skel/.local/share/squeekboard/keyboards/terminal
     curl https://raw.githubusercontent.com/Shubhamvis98/PinePhone_Tweaks/main/layouts/us.yaml > ${ROOTFS}/etc/skel/.local/share/squeekboard/keyboards/us.yaml
-    ln -sr ${ROOTFS}/etc/skel/.local/share/squeekboard/keyboards/{us.yaml,terminal/}
+    ln -srf ${ROOTFS}/etc/skel/.local/share/squeekboard/keyboards/{us.yaml,terminal/}
     sed -i 's/-0.07/0/;s/-0.13/0/' ${ROOTFS}/usr/share/plymouth/themes/kali/kali.script
     mkdir -p ${ROOTFS}/etc/repart.d
     cat << 'EOF' > ${ROOTFS}/etc/repart.d/50-root.conf
-    [Partition]
-    Type=root
-    Weight=10000
+[Partition]
+Type=root
+Weight=1000
 EOF
 else
     echo '[*]This has been already done'
@@ -177,12 +178,6 @@ nspawn-exec plymouth-set-default-theme -R kali
 #sed -i "/picture-uri/cpicture-uri='file:\/\/\/usr\/share\/backgrounds\/kali\/kali-red-sticker-16x9.jpg'" ${ROOTFS}/usr/share/glib-2.0/schemas/11_mobile.gschema.override
 #sed -i "/picture-uri/cpicture-uri='file:\/\/\/usr\/share\/backgrounds\/kali\/kali-red-sticker-16x9.jpg'" ${ROOTFS}/usr/share/glib-2.0/schemas/10_desktop-base.gschema.override
 nspawn-exec glib-compile-schemas /usr/share/glib-2.0/schemas
-
-if [[ "$family" == "sunxi" || "$family" == "rockchip" ]]
-then
-    echo '[*]Update u-boot config...'
-    nspawn-exec u-boot-update
-fi
 
 echo '[+]Stage 6: Enable services'
 for svc in `echo ${SERVICES} | tr ' ' '\n'`
@@ -221,6 +216,12 @@ echo '[*]Deploy rootfs into EXT4 image'
 tar -cpzf ${ROOTFS_TAR} ${ROOTFS} && rm -rf ${ROOTFS}
 mkimg ${IMG} ${IMGSIZE} ${PARTITIONS}
 tar -xpf ${ROOTFS_TAR}
+
+if [[ "$family" == "sunxi" || "$family" == "rockchip" ]]
+then
+    echo '[*]Update u-boot config...'
+    nspawn-exec -r '/etc/kernel/postinst.d/zz-u-boot-menu $(linux-version list | tail -1)'
+fi
 
 echo '[*]Cleanup and unmount'
 cleanup
