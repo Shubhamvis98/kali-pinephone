@@ -1,0 +1,11 @@
+[bootimg]
+base = 0x0
+kernel = 0x10000000
+ramdisk = 0x10000000
+second = 0
+tags = 0x10000000
+pagesize = 4096
+
+[[device]]
+vendor = "nothing"
+model = "spacewar"

@@ -29,7 +29,16 @@ EOF
 }
 
 nspawn-exec() {
-    systemd-nspawn --bind-ro $qemu_bin -M $machine --capability=cap_setfcap $ENV -D ${ROOTFS} "$@"
+    case "$1" in
+        '-r')
+            echo "$2" > ${ROOTFS}/__tmp.sh
+            nspawn-exec bash /__tmp.sh
+            rm ${ROOTFS}/__tmp.sh
+            ;;
+        *)
+            systemd-nspawn --bind-ro $qemu_bin -M $machine --capability=cap_setfcap $ENV -D ${ROOTFS} "$@"
+            ;;
+    esac
 }
 
 mkimg() {
