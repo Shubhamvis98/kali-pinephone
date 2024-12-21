@@ -36,7 +36,6 @@ case "$device" in
     arch="arm64"
     family="rockchip"
     SERVICES="eg25-manager"
-    PACKAGES="systemd-repart"
     ;;
   "pocof1"|"oneplus6"|"oneplus6t"|"sdm845" )
     arch="arm64"
@@ -60,7 +59,7 @@ case "$device" in
     ;;
 esac
 
-PACKAGES="${PACKAGES} kali-linux-core wget curl rsync systemd-timesyncd"
+PACKAGES="${PACKAGES} kali-linux-core wget curl rsync systemd-timesyncd systemd-repart"
 DPACKAGES="${family}-support"
 
 case "${environment}" in
@@ -135,8 +134,8 @@ EOF
 
 echo '[+]Stage 3: Installing device specific and environment packages'
 nspawn-exec apt update
-nspawn-exec apt install -y ${PACKAGES}
-
+echo nspawn-exec apt install -y ${PACKAGES}
+exit
 nspawn-exec sh -c "$(curl -fsSL https://repo.fossfrog.in/setup.sh)"
 
 nspawn-exec apt update
