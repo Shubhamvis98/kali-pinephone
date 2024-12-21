@@ -10,7 +10,7 @@ password="8888"
 mobian_suite="trixie"
 IMGSIZE=5   # GBs
 
-while getopts "cbt:e:h:u:p:s:m:" opt
+while getopts "cbt:e:h:u:p:s:m:M:" opt
 do
     case "$opt" in
         t ) device="$OPTARG" ;;
@@ -20,6 +20,7 @@ do
         p ) password="$OPTARG" ;;
         s ) custom_script="$OPTARG" ;;
         m ) mobian_suite="$OPTARG" ;;
+        M ) MIRROR="$OPTARG" ;;
         c ) compress=1 ;;
         b ) blockmap=1 ;;
     esac
@@ -97,7 +98,7 @@ echo '[*]Build will start in 5 seconds...'; sleep 5
 [ -e "base.tgz" ] && mkdir ${ROOTFS} && tar --strip-components=1 -xpf base.tgz -C ${ROOTFS}
 
 echo '[+]Stage 1: Debootstrap'
-[ -e ${ROOTFS}/etc ] && echo -e "[*]Debootstrap already done.\nSkipping Debootstrap..." || debootstrap --foreign --arch $arch kali-rolling ${ROOTFS} http://kali.download/kali
+[ -e ${ROOTFS}/etc ] && echo -e "[*]Debootstrap already done.\nSkipping Debootstrap..." || debootstrap --foreign --arch $arch kali-rolling ${ROOTFS} ${MIRROR}
 
 echo '[+]Stage 2: Debootstrap second stage and adding Mobian apt repo'
 [ -e ${ROOTFS}/etc/passwd ] && echo '[*]Second Stage already done' || nspawn-exec /debootstrap/debootstrap --second-stage
