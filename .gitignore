@@ -1,0 +1,5 @@
+*.tgz
+*.img
+*lck
+partuuid
+kali_rootfs_tmp
