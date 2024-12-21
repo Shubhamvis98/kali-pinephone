@@ -134,7 +134,7 @@ EOF
 
 echo '[+]Stage 3: Installing device specific and environment packages'
 nspawn-exec apt update
-echo nspawn-exec apt install -y ${PACKAGES}
+nspawn-exec apt install -y ${PACKAGES}
 
 nspawn-exec sh -c "$(curl -fsSL https://repo.fossfrog.in/setup.sh)"
 
