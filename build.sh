@@ -68,7 +68,7 @@ case "${environment}" in
         SERVICES="${SERVICES} greetd"
         ;;
     plasma-mobile)
-        PACKAGES="${PACKAGES} plasma-mobile"
+        PACKAGES="${PACKAGES} plasma-mobile qmlkonsole"
         SERVICES="${SERVICES} plasma-mobile"
         ;;
     xfce|lxde|gnome|kde)
