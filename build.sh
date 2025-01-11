@@ -39,7 +39,7 @@ case "$device" in
     ;;
   "pocof1"|"oneplus6"|"oneplus6t"|"sdm845" )
     arch="arm64"
-    family="sdm845"
+    family="qcom"
     SERVICES="qrtr-ns rmtfs pd-mapper tqftpserv qcom-modem-setup droid-juicer"
     PACKAGES="pulseaudio yq"
     PARTITIONS=1
