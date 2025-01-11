@@ -34,6 +34,10 @@ model = "beryllium"
 variant = "tianma"
 
 [[device]]
+vendor = "xiaomi"
+model = "polaris"
+
+[[device]]
 vendor = "fairphone"
 model = "fp4"
 chipset = "sm7225"
@@ -42,4 +46,9 @@ chipset = "sm7225"
 vendor = "fairphone"
 model = "fp5"
 chipset = "qcm6490"
+bootimg = { version = 2, base = 0x0, kernel = 0x8000, ramdisk = 0x01000000, dtb = 0x01f00000, second = 0x0, tags = 0x100, pagesize = 4096 }
+
+[[device]]
+vendor = "nothing"
+model = "spacewar"
 bootimg = { version = 2, base = 0x0, kernel = 0x8000, ramdisk = 0x01000000, dtb = 0x01f00000, second = 0x0, tags = 0x100, pagesize = 4096 }
