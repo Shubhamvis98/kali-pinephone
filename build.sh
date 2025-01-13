@@ -41,7 +41,7 @@ case "$device" in
     arch="arm64"
     family="qcom"
     SERVICES="qrtr-ns rmtfs pd-mapper tqftpserv qcom-modem-setup droid-juicer"
-    PACKAGES="pulseaudio yq"
+    PACKAGES="pulseaudio yq qbootctl"
     PARTITIONS=1
     SPARSE=1
     ;;
@@ -49,7 +49,7 @@ case "$device" in
     arch="arm64"
     family="sm7325"
     SERVICES="qrtr-ns rmtfs pd-mapper tqftpserv qcom-modem-setup droid-juicer"
-    PACKAGES="pulseaudio yq"
+    PACKAGES="pulseaudio yq qbootctl"
     PARTITIONS=1
     SPARSE=1
     ;;
