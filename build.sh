@@ -9,6 +9,7 @@ username="kali"
 password="8888"
 mobian_suite="trixie"
 IMGSIZE=5   # GBs
+MIRROR='http://http.kali.org/kali'
 
 while getopts "cbt:e:h:u:p:s:m:M:" opt
 do
