@@ -32,11 +32,13 @@ case "$device" in
     arch="arm64"
     family="sunxi"
     SERVICES="eg25-manager"
+    PACKAGES="megapixels"
     ;;
   "pinephonepro"|"pinetab2"|"rockchip" )
     arch="arm64"
     family="rockchip"
     SERVICES="eg25-manager"
+    PACKAGES="megapixels megapixels-config-pinephonepro"
     ;;
   "pocof1"|"oneplus6"|"oneplus6t"|"sdm845" )
     arch="arm64"
