@@ -205,9 +205,9 @@ nspawn-exec apt clean
 
 if [ ${SPARSE} ]
 then
-    nspawn-exec sudo -u ${username} systemctl --user disable pipewire pipewire-pulse
-    nspawn-exec sudo -u ${username} systemctl --user mask pipewire pipewire-pulse
-    nspawn-exec sudo -u ${username} systemctl --user enable pulseaudio
+    #nspawn-exec sudo -u ${username} systemctl --user disable pipewire pipewire-pulse
+    #nspawn-exec sudo -u ${username} systemctl --user mask pipewire pipewire-pulse
+    #nspawn-exec sudo -u ${username} systemctl --user enable pulseaudio
     cp -r bin/bootloader.sh bin/configs ${ROOTFS}
     chmod +x ${ROOTFS}/bootloader.sh
     nspawn-exec /bootloader.sh ${family}
