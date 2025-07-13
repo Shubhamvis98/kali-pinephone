@@ -62,7 +62,7 @@ case "$device" in
     ;;
 esac
 
-PACKAGES="${PACKAGES} kali-linux-core wget curl rsync systemd-timesyncd systemd-repart"
+PACKAGES="${PACKAGES} kali-linux-core wget curl vim binutils rsync systemd-timesyncd systemd-repart"
 DPACKAGES="${family}-support"
 
 case "${environment}" in
