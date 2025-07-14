@@ -30,12 +30,12 @@ A huge thanks to Mobian Project and Megi's Kernel Patches.
 ```
 
 ## Required packages:
-    - systemd-container
-    - rsync
+    - android-sdk-libsparse-utils
+    - bmap-tools
     - debootstrap
     - qemu-user-static
-    - bmap-tools
-    - android-sdk-libsparse-utils
+    - rsync
+    - systemd-container
 
 Download official Kali Nethunter for PinePhone and PinePhone Pro from Kali download page: https://www.kali.org/get-kali/#kali-mobile
 
