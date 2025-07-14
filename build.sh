@@ -40,7 +40,7 @@ case "$device" in
     SERVICES="eg25-manager"
     PACKAGES="megapixels megapixels-config-pinephonepro"
     ;;
-  "pocof1"|"oneplus6"|"oneplus6t"|"sdm845" )
+  "pocof1"|"oneplus6"|"oneplus6t"|"sdm845"|"qcom" )
     arch="arm64"
     family="qcom"
     SERVICES="qrtr-ns rmtfs pd-mapper tqftpserv qcom-modem-setup droid-juicer"
