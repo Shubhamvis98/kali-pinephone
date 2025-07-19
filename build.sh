@@ -1,6 +1,6 @@
 #!/bin/bash -e
 
-. ./funcs.sh
+. bin/funcs.sh
 
 device="pinephone"
 environment="phosh"
@@ -62,8 +62,7 @@ case "$device" in
     ;;
 esac
 
-PACKAGES="${PACKAGES} kali-linux-core wget curl vim binutils rsync systemd-timesyncd systemd-repart"
-DPACKAGES="${family}-support"
+PACKAGES="${PACKAGES} kali-linux-core wget vim binutils rsync systemd-timesyncd systemd-repart ${family}-support"
 
 case "${environment}" in
     phosh)
@@ -137,12 +136,9 @@ EOF
 
 echo '[+]Stage 3: Installing device specific and environment packages'
 nspawn-exec apt update
-nspawn-exec apt install -y ${PACKAGES}
-
+nspawn-exec apt install -y curl
 nspawn-exec sh -c "$(curl -fsSL https://repo.fossfrog.in/setup.sh)"
-
-nspawn-exec apt update
-nspawn-exec apt install -y ${DPACKAGES}
+nspawn-exec apt install -y ${PACKAGES}
 
 echo '[+]Stage 4: Adding some extra tweaks'
 if [ ! -e "${ROOTFS}/etc/repart.d/50-root.conf" ]

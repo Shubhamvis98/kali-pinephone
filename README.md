@@ -17,7 +17,7 @@ twitter/git: shubhamvis98
 
 A huge thanks to Mobian Project and Megi's Kernel Patches.
 
-## Build Instruction
+## Build Instruction:
 ```
 #PinePhone
 ./build.sh -t pinephone
