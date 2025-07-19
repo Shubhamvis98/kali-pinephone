@@ -66,7 +66,7 @@ PACKAGES="${PACKAGES} kali-linux-core wget vim binutils rsync systemd-timesyncd 
 
 case "${environment}" in
     phosh)
-        PACKAGES="${PACKAGES} phosh-phone phog portfolio-filemanager"
+        PACKAGES="${PACKAGES} phosh-phone phrog portfolio-filemanager"
         SERVICES="${SERVICES} greetd"
         ;;
     plasma-mobile)
