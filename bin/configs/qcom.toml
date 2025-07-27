@@ -31,7 +31,17 @@ variant = "ebbg"
 [[device]]
 vendor = "xiaomi"
 model = "beryllium"
+variant = "ebbgnt"
+
+[[device]]
+vendor = "xiaomi"
+model = "beryllium"
 variant = "tianma"
+
+[[device]]
+vendor = "xiaomi"
+model = "beryllium"
+variant = "tianmaft"
 
 [[device]]
 vendor = "fairphone"
