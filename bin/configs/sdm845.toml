@@ -30,8 +30,3 @@ variant = "ebbg"
 vendor = "xiaomi"
 model = "beryllium"
 variant = "tianma"
-
-[[device]]
-vendor = "xiaomi"
-model = "polaris"
-

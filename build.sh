@@ -1,6 +1,6 @@
 #!/bin/bash -e
 
-. ./funcs.sh
+. bin/funcs.sh
 
 device="pinephone"
 environment="phosh"
@@ -40,7 +40,7 @@ case "$device" in
     SERVICES="eg25-manager"
     PACKAGES="megapixels megapixels-config-pinephonepro"
     ;;
-  "pocof1"|"oneplus6"|"oneplus6t"|"sdm845" )
+  "pocof1"|"oneplus6"|"oneplus6t"|"sdm845"|"qcom" )
     arch="arm64"
     family="qcom"
     SERVICES="qrtr-ns rmtfs pd-mapper tqftpserv qcom-modem-setup droid-juicer"
@@ -62,12 +62,12 @@ case "$device" in
     ;;
 esac
 
-PACKAGES="${PACKAGES} kali-linux-core wget curl rsync systemd-timesyncd systemd-repart"
+PACKAGES="${PACKAGES} kali-linux-core wget vim binutils rsync systemd-timesyncd systemd-repart"
 DPACKAGES="${family}-support"
 
 case "${environment}" in
     phosh)
-        PACKAGES="${PACKAGES} phosh-phone phog portfolio-filemanager"
+        PACKAGES="${PACKAGES} phosh-phone phrog portfolio-filemanager"
         SERVICES="${SERVICES} greetd"
         ;;
     plasma-mobile)
@@ -137,11 +137,9 @@ EOF
 
 echo '[+]Stage 3: Installing device specific and environment packages'
 nspawn-exec apt update
-nspawn-exec apt install -y ${PACKAGES}
-
+nspawn-exec apt install -y curl
 nspawn-exec sh -c "$(curl -fsSL https://repo.fossfrog.in/setup.sh)"
-
-nspawn-exec apt update
+nspawn-exec apt install -y ${PACKAGES}
 nspawn-exec apt install -y ${DPACKAGES}
 
 echo '[+]Stage 4: Adding some extra tweaks'
@@ -205,9 +203,9 @@ nspawn-exec apt clean
 
 if [ ${SPARSE} ]
 then
-    nspawn-exec sudo -u ${username} systemctl --user disable pipewire pipewire-pulse
-    nspawn-exec sudo -u ${username} systemctl --user mask pipewire pipewire-pulse
-    nspawn-exec sudo -u ${username} systemctl --user enable pulseaudio
+    #nspawn-exec sudo -u ${username} systemctl --user disable pipewire pipewire-pulse
+    #nspawn-exec sudo -u ${username} systemctl --user mask pipewire pipewire-pulse
+    #nspawn-exec sudo -u ${username} systemctl --user enable pulseaudio
     cp -r bin/bootloader.sh bin/configs ${ROOTFS}
     chmod +x ${ROOTFS}/bootloader.sh
     nspawn-exec /bootloader.sh ${family}
