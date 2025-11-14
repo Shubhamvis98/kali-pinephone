@@ -104,11 +104,14 @@ echo '[+]Stage 1: Debootstrap'
 
 echo '[+]Stage 2: Debootstrap second stage and adding Mobian apt repo'
 [ -e ${ROOTFS}/etc/passwd ] && echo '[*]Second Stage already done' || nspawn-exec /debootstrap/debootstrap --second-stage
-mkdir -p ${ROOTFS}/etc/apt/sources.list.d ${ROOTFS}/etc/apt/trusted.gpg.d
+mkdir -p ${ROOTFS}/etc/apt/sources.list.d ${ROOTFS}/etc/apt/keyrings
 sed -i 's/main/main contrib non-free non-free-firmware/g' ${ROOTFS}/etc/apt/sources.list
-echo "deb http://repo.mobian.org/ ${mobian_suite} main non-free-firmware" > ${ROOTFS}/etc/apt/sources.list.d/mobian.list
-curl -L http://repo.mobian.org/mobian.gpg -o ${ROOTFS}/etc/apt/trusted.gpg.d/mobian.gpg
-chmod 644 ${ROOTFS}/etc/apt/trusted.gpg.d/mobian.gpg
+# Download and convert Mobian GPG keybox to a format compatible with apt
+curl -L http://repo.mobian.org/mobian.gpg -o /tmp/mobian-keybox.gpg
+gpg --no-default-keyring --keyring /tmp/mobian-keybox.gpg --export > ${ROOTFS}/etc/apt/keyrings/mobian.gpg
+rm -f /tmp/mobian-keybox.gpg
+chmod 644 ${ROOTFS}/etc/apt/keyrings/mobian.gpg
+echo "deb [signed-by=/etc/apt/keyrings/mobian.gpg] http://repo.mobian.org/ ${mobian_suite} main non-free-firmware" > ${ROOTFS}/etc/apt/sources.list.d/mobian.list
 
 cat << EOF > ${ROOTFS}/etc/apt/preferences.d/00-mobian-priority
 Package: *
