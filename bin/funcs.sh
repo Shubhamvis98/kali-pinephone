@@ -1,7 +1,14 @@
 #!/bin/bash
 
 ARCH='arm64'
-qemu_bin='/usr/bin/qemu-aarch64-static'
+if [ -f '/usr/bin/qemu-aarch64-static' ]; then
+    qemu_bin='/usr/bin/qemu-aarch64-static'
+elif [ -f '/usr/bin/qemu-aarch64' ]; then
+    qemu_bin='/usr/bin/qemu-aarch64'
+else
+    echo "Error: qemu-aarch64-static or qemu-aarch64 not found"
+    exit 1
+fi
 machine='debian'
 ENV='-E RUNLEVEL=1 -E LANG=C -E DEBIAN_FRONTEND=noninteractive -E DEBCONF_NOWARNINGS=yes'
 LOOP=`losetup -f`
