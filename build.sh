@@ -1,6 +1,6 @@
 #!/bin/bash -e
 
-. bin/funcs.sh
+. ./funcs.sh
 
 device="pinephone"
 environment="phosh"
@@ -40,7 +40,7 @@ case "$device" in
     SERVICES="eg25-manager"
     PACKAGES="megapixels megapixels-config-pinephonepro"
     ;;
-  "pocof1"|"oneplus6"|"oneplus6t"|"sdm845"|"qcom" )
+  "pocof1"|"oneplus6"|"oneplus6t"|"sdm845" )
     arch="arm64"
     family="qcom"
     SERVICES="qrtr-ns rmtfs pd-mapper tqftpserv qcom-modem-setup droid-juicer"
@@ -62,12 +62,12 @@ case "$device" in
     ;;
 esac
 
-PACKAGES="${PACKAGES} kali-linux-core wget vim binutils rsync systemd-timesyncd systemd-repart"
+PACKAGES="${PACKAGES} kali-linux-core wget curl rsync systemd-timesyncd systemd-repart"
 DPACKAGES="${family}-support"
 
 case "${environment}" in
     phosh)
-        PACKAGES="${PACKAGES} phosh-phone phrog portfolio-filemanager"
+        PACKAGES="${PACKAGES} phosh-phone phog portfolio-filemanager"
         SERVICES="${SERVICES} greetd"
         ;;
     plasma-mobile)
@@ -104,14 +104,11 @@ echo '[+]Stage 1: Debootstrap'
 
 echo '[+]Stage 2: Debootstrap second stage and adding Mobian apt repo'
 [ -e ${ROOTFS}/etc/passwd ] && echo '[*]Second Stage already done' || nspawn-exec /debootstrap/debootstrap --second-stage
-mkdir -p ${ROOTFS}/etc/apt/sources.list.d ${ROOTFS}/etc/apt/keyrings
+mkdir -p ${ROOTFS}/etc/apt/sources.list.d ${ROOTFS}/etc/apt/trusted.gpg.d
 sed -i 's/main/main contrib non-free non-free-firmware/g' ${ROOTFS}/etc/apt/sources.list
-# Download and convert Mobian GPG keybox to a format compatible with apt
-curl -L http://repo.mobian.org/mobian.gpg -o /tmp/mobian-keybox.gpg
-gpg --no-default-keyring --keyring /tmp/mobian-keybox.gpg --export > ${ROOTFS}/etc/apt/keyrings/mobian.gpg
-rm -f /tmp/mobian-keybox.gpg
-chmod 644 ${ROOTFS}/etc/apt/keyrings/mobian.gpg
-echo "deb [signed-by=/etc/apt/keyrings/mobian.gpg] http://repo.mobian.org/ ${mobian_suite} main non-free-firmware" > ${ROOTFS}/etc/apt/sources.list.d/mobian.list
+echo "deb http://repo.mobian.org/ ${mobian_suite} main non-free-firmware" > ${ROOTFS}/etc/apt/sources.list.d/mobian.list
+curl -L http://repo.mobian.org/mobian.gpg -o ${ROOTFS}/etc/apt/trusted.gpg.d/mobian.gpg
+chmod 644 ${ROOTFS}/etc/apt/trusted.gpg.d/mobian.gpg
 
 cat << EOF > ${ROOTFS}/etc/apt/preferences.d/00-mobian-priority
 Package: *
@@ -140,9 +137,11 @@ EOF
 
 echo '[+]Stage 3: Installing device specific and environment packages'
 nspawn-exec apt update
-nspawn-exec apt install -y curl
-nspawn-exec sh -c "$(curl -fsSL https://repo.fossfrog.in/setup.sh)"
 nspawn-exec apt install -y ${PACKAGES}
+
+nspawn-exec sh -c "$(curl -fsSL https://repo.fossfrog.in/setup.sh)"
+
+nspawn-exec apt update
 nspawn-exec apt install -y ${DPACKAGES}
 
 echo '[+]Stage 4: Adding some extra tweaks'
@@ -183,6 +182,26 @@ nspawn-exec plymouth-set-default-theme -R kali
 sed -i "/picture-uri/cpicture-uri='file:\/\/\/usr\/share\/backgrounds\/kali\/kali-metal-dark-16x9.jpg'" ${ROOTFS}/usr/share/glib-2.0/schemas/10_desktop-base.gschema.override
 nspawn-exec glib-compile-schemas /usr/share/glib-2.0/schemas
 
+
+nspawn-exec sh -c "$(curl -fsSL https://repo.fossfrog.in/setup.sh)"
+nspawn-exec apt update
+nspawn-exec apt install -y ${DPACKAGES}
+
+echo '[+] Applying Polaris DTB override...'
+nspawn-exec apt install -y wget device-tree-compiler
+nspawn-exec wget -O /tmp/polaris.dts \
+    "https://github.com/apk0mix5900/polaris-kali-nethunter-pro/releases/download/wifi-fix/polaris-wifi-otg.dts"
+nspawn-exec dtc -O dtb -o /tmp/sdm845-xiaomi-polaris.dtb /tmp/polaris.dts
+nspawn-exec bash -c '
+    KERNEL_VERSION=$(linux-version list | tail -1) && \
+    DTB_PATH="/usr/lib/linux-image-${KERNEL_VERSION}/qcom/sdm845-xiaomi-polaris.dtb" && \
+    echo "[+] Replacing DTB for kernel: ${KERNEL_VERSION}" && \
+    rm -f "$DTB_PATH" && \
+    cp /tmp/sdm845-xiaomi-polaris.dtb "$DTB_PATH"
+'
+nspawn-exec rm -f /tmp/polaris.dts /tmp/sdm845-xiaomi-polaris.dtb
+echo '[+] Polaris DTB override completed.'
+
 echo '[+]Stage 6: Enable services'
 for svc in `echo ${SERVICES} | tr ' ' '\n'`
 do
@@ -206,14 +225,38 @@ nspawn-exec apt clean
 
 if [ ${SPARSE} ]
 then
-    #nspawn-exec sudo -u ${username} systemctl --user disable pipewire pipewire-pulse
-    #nspawn-exec sudo -u ${username} systemctl --user mask pipewire pipewire-pulse
-    #nspawn-exec sudo -u ${username} systemctl --user enable pulseaudio
-    cp -r bin/bootloader.sh bin/configs ${ROOTFS}
-    chmod +x ${ROOTFS}/bootloader.sh
-    nspawn-exec /bootloader.sh ${family}
-    mv -v ${ROOTFS}/boot*img .
-    rm -rf ${ROOTFS}/bootloader.sh ${ROOTFS}/configs
+    if [ "$family" == "qcom" ] && [ -d ".polaris_mode" ]; then
+        echo "[+] Polaris mode detected for sdm845 device. Building custom boot.img..."
+        
+        WORK_DIR=".polaris_mode"
+        
+        echo "[+] ROOT_UUID saved to ${WORK_DIR}/uuid.conf"
+        
+        echo "[+] Downloading Polaris boot image..."
+        wget -q --show-progress \
+            -O ${WORK_DIR}/polaris-boot.img \
+            "https://github.com/apk0mix5900/polaris-kali-nethunter-pro/releases/download/wifi-fix/polaris-boot-nhp-otg-wifi.img" \
+            || { echo "Error: Failed to download boot image"; exit 1; }
+        
+        echo "[+] Extracting and repacking boot.img with ROOT_UUID: ${ROOT_UUID}"
+        cd ${WORK_DIR}
+        abootimg -x polaris-boot.img
+        sed -i "s/root=UUID=[^ ]*/root=UUID=${ROOT_UUID}/" bootimg.cfg
+        abootimg --create polaris-new.img -f bootimg.cfg -k zImage -r initrd.img
+        cd - 
+        
+        cp ${WORK_DIR}/polaris-new.img boot_polaris_$(date +%Y%m%d).img
+        echo "[+] Polaris boot.img generated: boot_polaris_$(date +%Y%m%d).img"
+        
+        rm -rf ${WORK_DIR}/polaris-boot.img
+        
+    else
+        cp -r bin/bootloader.sh bin/configs ${ROOTFS}
+        chmod +x ${ROOTFS}/bootloader.sh
+        nspawn-exec /bootloader.sh ${family}
+        mv -v ${ROOTFS}/boot*img .
+        rm -rf ${ROOTFS}/bootloader.sh ${ROOTFS}/configs
+    fi
 fi
 
 echo '[*]Deploy rootfs into EXT4 image'
